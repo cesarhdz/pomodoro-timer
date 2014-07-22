@@ -30,8 +30,9 @@
     "pomodoro": "./bin/pomodoro"
   },
   "dependencies": {
-    "growl": "~1.6.1",
+    "growl": "~1.8",
     "commander": "~1.1.1",
-    "play": "git://github.com/niftylettuce/play.js.git"
+    "play": "git://github.com/niftylettuce/play.js.git",
+    "progress": "~1.1.7"
   }
 }

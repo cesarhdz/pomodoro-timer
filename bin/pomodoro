@@ -26,6 +26,9 @@ var growl    = require('growl')
   , start    = path.join(__dirname, '..', 'assets', 'start.wav')
   , done     = path.join(__dirname, '..', 'assets', 'done.wav')
 
+
+  , ProgressBar = require('progress');
+
 program
   .version(version)
   .option('-m, --mute', 'Mute start and done sounds, played by default', parseInt)
@@ -33,11 +36,15 @@ program
   .parse(process.argv)
 
 
-// Transform minutes to miliseconds if time is given, otherwise defaults to 25 min
-program.time = program.time * 60000 || 1500000
+// Timte to work
+program.time = program.time || 25
+
 
 // After prompting task 
-program.prompt('task: ', createTask)
+// 
+function runTask(){
+  program.prompt('task: ', createTask)
+}
 
 
 function playSound(sound){
@@ -49,16 +56,50 @@ function playSound(sound){
 function createTask(task) {
   playSound(start);
 
-  growl(task, { title: 'Pomodoro - ' + (program.time / 60000 )+':00 Remaining', image: pomodoro })
+  growl(task, { title: 'Pomodoro - ' + (program.time )+':00 Remaining', image: pomodoro })
+
+  if(typeof program.time == 'string'){
+    program.time = parseInt(program.time)
+  }
+
+  displayBar('Running Task', program.time);
 
   // Set final timeout
   setTimeout(function(){
-    playSound(done);
-
-    growl(task, { title: 'Pomodoro - Take a break!', image: pomodoro })
-
-    process.exit()
-  }, program.time)
-
-  // Set coffe break timeout
+    startBreak(task);
+  }, program.time * 60000)
 }
+
+function startBreak(task){
+  playSound(done);
+
+  growl(task, { title: 'Pomodoro - Take a break!', image: pomodoro })
+
+  console.log('Pomodoro - Take a break!');
+  
+  displayBar('Coffe Break', 5);
+
+  setTimeout(function(){
+    runTask();
+  }, 5  * 60000)
+}
+
+function displayBar(task, total){
+
+  var timeBar = new ProgressBar(task + ' [:bar] :percent ', { 
+    total: total,
+    width: 50,
+    incomplete: ' ',
+    clear: true
+  });
+
+  timeBar.tick(0);
+
+  setInterval(function(){
+    timeBar.tick();
+  }, 60000);
+
+}
+
+// Bottstrap
+runTask();
