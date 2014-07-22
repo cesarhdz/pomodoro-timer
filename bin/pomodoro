@@ -28,16 +28,37 @@ var growl    = require('growl')
 
 program
   .version(version)
+  .option('-m, --mute', 'Mute start and done sounds, played by default', parseInt)
+  .option('-t, --time [n]', 'Custom time, defaults to 25 minutes')
   .parse(process.argv)
 
+
+// Transform minutes to miliseconds if time is given, otherwise defaults to 25 min
+program.time = program.time * 60000 || 1500000
+
+// After prompting task 
 program.prompt('task: ', createTask)
 
-function createTask(task) {
+
+function playSound(sound){
+  if(program.mute){ return }
+  
   play.sound(start)
-  growl(task, { title: 'Pomodoro - 25:00 Remaining', image: pomodoro })
-  setTimeout(function() {
-    play.sound(done)
+}
+
+function createTask(task) {
+  playSound(start);
+
+  growl(task, { title: 'Pomodoro - ' + (program.time / 60000 )+':00 Remaining', image: pomodoro })
+
+  // Set final timeout
+  setTimeout(function(){
+    playSound(done);
+
     growl(task, { title: 'Pomodoro - Take a break!', image: pomodoro })
+
     process.exit()
-  }, 1500000)
+  }, program.time)
+
+  // Set coffe break timeout
 }
