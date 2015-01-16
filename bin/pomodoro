@@ -21,85 +21,74 @@ var growl    = require('growl')
   , path     = require('path')
   , fs       = require('fs')
   , version  = require('../package').version
-  , play     = require('play').Play()
+  // , play     = require('play').Play()
   , pomodoro = path.join(__dirname, '..', 'assets', 'pomodoro-timer.png')
   , start    = path.join(__dirname, '..', 'assets', 'start.wav')
   , done     = path.join(__dirname, '..', 'assets', 'done.wav')
 
 
-  , ProgressBar = require('progress');
+  , ProgressBar = require('progress')
 
-program
-  .version(version)
-  .option('-m, --mute', 'Mute start and done sounds, played by default', parseInt)
-  .option('-t, --time [n]', 'Custom time, defaults to 25 minutes')
-  .parse(process.argv)
+  , App = require('../src/pomodoro')
 
 
-// Timte to work
-program.time = program.time || 25
 
 
-// After prompting task 
-// 
-function runTask(){
-  program.prompt('task: ', createTask)
-}
+// var app = new App({task:.25, notification: .15, shortBreak: .1})
+var app = new App()
+app.run()
 
+var progressBar = function(label){
+  return function(time){
+      var
+      step = 10000, //ms
+      timeBar = new ProgressBar(label + ' [:bar] :percent ', { 
+        total: (time - step)/ step,
+        width: 50,
+        incomplete: ' ',
+        clear: true
+      });
 
-function playSound(sound){
-  if(program.mute){ return }
-  
-  play.sound(start)
-}
+      timeBar.tick(0);
 
-function createTask(task) {
-  playSound(start);
-
-  growl(task, { title: 'Pomodoro - ' + (program.time )+':00 Remaining', image: pomodoro })
-
-  if(typeof program.time == 'string'){
-    program.time = parseInt(program.time)
+      setInterval(function(){
+        timeBar.tick()
+      }, step);
   }
-
-  displayBar('Running Task', program.time);
-
-  // Set final timeout
-  setTimeout(function(){
-    startBreak(task);
-  }, program.time * 60000)
 }
 
-function startBreak(task){
-  playSound(done);
 
-  growl(task, { title: 'Pomodoro - Take a break!', image: pomodoro })
+app.on('task.start', function(time, task){
+  console.log('| Stating task at ' + new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''));
+  console.log(time + ':00, tic tac');
+})
 
-  console.log('Pomodoro - Take a break!');
-  
-  displayBar('Coffe Break', 5);
 
-  setTimeout(function(){
-    runTask();
-  }, 5  * 60000)
-}
+app.on('task.start', progressBar('Task'))
 
-function displayBar(task, total){
 
-  var timeBar = new ProgressBar(task + ' [:bar] :percent ', { 
-    total: total,
-    width: 50,
-    incomplete: ' ',
-    clear: true
-  });
+app.on('task.timeover.notification', function(timeLeft, task){
+  console.log('| Hurry up!')
+  console.log('| You have ' + timeLeft + 'left')
+})
 
-  timeBar.tick(0);
 
-  setInterval(function(){
-    timeBar.tick();
-  }, 60000);
+app.on('task.timeover', function(task){
+  console.log('| Hope you have finished')
+  console.log('| Now you deserve a break')
+})
 
-}
 
-// Bottstrap
-runTask();
+app.on('shortBreak.start', function(time){
+  console.log('You deserve a break')
+  console.log('Have about going to take fresh air')
+})
+
+app.on('shortBreak.start', progressBar('Break'))
+
+app.on('shortBreak.timeover', function(){
+  console.log("\n\n-------------------------")
+  console.log("You have to get back to work!")
+})
+
+return 
