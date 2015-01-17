@@ -17,14 +17,10 @@
 // # pomodoro-timer
 
 var growl    = require('growl')
-  , program  = require('commander')
   , path     = require('path')
-  , fs       = require('fs')
   , version  = require('../package').version
   // , play     = require('play').Play()
   , pomodoro = path.join(__dirname, '..', 'assets', 'pomodoro-timer.png')
-  , start    = path.join(__dirname, '..', 'assets', 'start.wav')
-  , done     = path.join(__dirname, '..', 'assets', 'done.wav')
 
 
   , ProgressBar = require('progress')
@@ -33,10 +29,13 @@ var growl    = require('growl')
 
 
 
-
-// var app = new App({task:.25, notification: .15, shortBreak: .1})
-var app = new App()
+// var app = new App()
+var app = new App({task:.25, notification: .15, shortBreak: .1})
 app.run()
+
+var now = function(){
+  return new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+}
 
 var progressBar = function(label){
   return function(time){
@@ -59,36 +58,50 @@ var progressBar = function(label){
 
 
 app.on('task.start', function(time, task){
-  console.log('| Stating task at ' + new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''));
-  console.log(time + ':00, tic tac');
+  console.log('| Stating task [' + task + '] at ' + now())
 })
 
 
-app.on('task.start', progressBar('Task'))
+app.on('task.start', progressBar('Task timer'))
 
 
 app.on('task.timeover.notification', function(timeLeft, task){
-  console.log('| Hurry up!')
-  console.log('| You have ' + timeLeft + 'left')
+  console.log("\n| You have " +  timeLeft / 60000 + ' minutes to complete your task!')
+
+  // Growl notification
+  growl('Tic tac!', { 
+    title: 'You have ' +  timeLeft / 60000 + ' minutes to complete your task!', 
+    image: pomodoro 
+  })
 })
 
 
 app.on('task.timeover', function(task){
-  console.log('| Hope you have finished')
-  console.log('| Now you deserve a break')
+  console.log('| Hope you have finished, now you should take a break')
 })
 
 
 app.on('shortBreak.start', function(time){
-  console.log('You deserve a break')
-  console.log('Have about going to take fresh air')
+  console.log('! Starting  short break at ' + now())
+
+  // Growl notification
+  growl('Break time starts', { 
+    title: 'It\'s time to have a Break!', 
+    image: pomodoro 
+  })
 })
 
-app.on('shortBreak.start', progressBar('Break'))
+app.on('shortBreak.start', progressBar('Break Timer'))
 
 app.on('shortBreak.timeover', function(){
+  // Growl notification
+  growl('Break Time is over', { 
+    title: 'You have to get back to work!', 
+    image: pomodoro 
+  })
+
   console.log("\n\n-------------------------")
-  console.log("You have to get back to work!")
+  console.log("Starting a new Task !")
 })
 
 return 
