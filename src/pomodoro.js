@@ -37,7 +37,7 @@ Pomodoro.prototype.startTask = function(){
 
 		// Send notification
 		setTimeout(function(){
-			app.emit('task.timeover.notification', notification, task)
+			app.emit('task.timeover.notification', app.config.notification * MINUTES, task)
 		}, notification)
 
 		// When task is completed, its sent

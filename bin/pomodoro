@@ -28,23 +28,45 @@ var growl    = require('growl')
   , App = require('../src/pomodoro')
 
 
-
-// var app = new App()
-var app = new App({task:.25, notification: .15, shortBreak: .1})
-app.run()
-
-var now = function(){
-  return new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+function toMinutes(time){
+  return parseInt(time / 1000 / 60) + ":" + (time / 1000 % 60)
 }
 
-var progressBar = function(label){
+var app = new App()
+app.run()
+
+var
+now = function(){
+  return new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+},
+
+timer = function(label){ return function(time){
+
+  var
+  times = 0, 
+  interval = 30 * 1000,
+  total =  toMinutes(time),
+  cb = setInterval(function(){
+    times++
+
+    console.log("\n| [" + label + '] => ' + toMinutes(times * interval) + ' / ' + total)
+  }, interval)
+
+  setTimeout(function(){
+    clearInterval(cb)
+  }, time)
+
+}},
+
+progressBar = function(label){
   return function(time){
       var
-      step = 10000, //ms
-      timeBar = new ProgressBar(label + ' [:bar] :percent ', { 
+      step = 10 * 1000, //ms
+      timeBar = new ProgressBar("|:bar|\n", { 
         total: (time - step)/ step,
-        width: 50,
+        width: 70,
         incomplete: ' ',
+        complete: '.',
         clear: true
       });
 
@@ -58,19 +80,24 @@ var progressBar = function(label){
 
 
 app.on('task.start', function(time, task){
-  console.log('| Stating task [' + task + '] at ' + now())
+  console.log(
+              "===========================================================\n" 
+              + '# Stating task [' + task + '] at ' + now() + "\n" +
+              "==========================================================="
+              )
 })
 
 
+app.on('task.start', timer('Task') )
 app.on('task.start', progressBar('Task timer'))
 
 
 app.on('task.timeover.notification', function(timeLeft, task){
-  console.log("\n| You have " +  timeLeft / 60000 + ' minutes to complete your task!')
+  console.log("\n| You have " +  toMinutes(timeLeft) + ' minutes to complete your task!')
 
   // Growl notification
   growl('Tic tac!', { 
-    title: 'You have ' +  timeLeft / 60000 + ' minutes to complete your task!', 
+    title: 'You have ' +  toMinutes(timeLeft) + ' minutes to complete your task!', 
     image: pomodoro 
   })
 })
@@ -91,6 +118,7 @@ app.on('shortBreak.start', function(time){
   })
 })
 
+app.on('shortBreak.start', timer('Break'))
 app.on('shortBreak.start', progressBar('Break Timer'))
 
 app.on('shortBreak.timeover', function(){
