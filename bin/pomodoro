@@ -31,6 +31,8 @@ var growl    = require('growl')
 
   , chalk = require('chalk')
 
+  , dateFormat = require('dateformat')
+
 
 function toMinutes(time){
 
@@ -50,11 +52,12 @@ function toMinutes(time){
 }
 
 var app = new App()
+var app = new App({task:0.25, shortBreak:0.125, notification:0.125})
 app.run()
 
 var
 now = function(){
-  return new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+  return dateFormat(new Date(), "h:MM:ss")
 },
 
 timer = function(label, color){ return function(time){
@@ -69,7 +72,7 @@ timer = function(label, color){ return function(time){
     process.stdout.clearLine()
     process.stdout.cursorTo(0)
     process.stdout.write(
-      "| [" + label + '] => ' + chalk[color](toMinutes(times * interval) + ' / ' + total)
+      "| [" + label + '] => ' + chalk[color](' ' + toMinutes(times * interval)  + ' ')
     )
 
   }, interval)
@@ -83,18 +86,18 @@ timer = function(label, color){ return function(time){
 
 app.on('task.start', function(time, task){
   console.log(
-              chalk.gray('===========================================================') + "\n"
-              + '# Stating task ' + chalk.green(task) + ' at ' + now() + "\n" +
-              chalk.gray('===========================================================') + "\n"
+              chalk.cyan('===========================================================') + "\n"
+              + '# Stating task ' + chalk.cyan(task) + ' at ' + chalk.cyan(now()) + "\n" +
+              chalk.cyan('===========================================================') + "\n"
               )
 })
 
 
-app.on('task.start', timer('Task', 'cyan') )
+app.on('task.start', timer('Task', 'bgGreen') )
 
 app.on('task.timeover', function(){
   console.log(
-    "\n\n" + chalk.gray('-------------------------- BREAK -------------------------') + "\n"
+    "\n\n" + chalk.gray('-------------------------- BREAK --------------------------') + "\n"
   )
 })
 
@@ -115,15 +118,18 @@ app.on('shortBreak.start', function(time){
   })
 })
 
-app.on('shortBreak.start', timer('Break', 'yellow'))
+app.on('shortBreak.start', timer('Break', 'bgYellow'))
+
+
 
 app.on('shortBreak.timeover', function(){
+  console.log(
+    chalk.gray("\n\n................ END OF TASK @ " + now() + " ...................\n")
+  )
+
   // Growl notification
   growl('Break Time is over', { 
     title: 'You have to get back to work!', 
     image: pomodoro 
   })
-
-  console.log("\n\n" + chalk.gray('...........................................................'))
-  console.log(chalk.gray("* Starting a new Task !"))
 })
