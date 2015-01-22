@@ -52,7 +52,6 @@ function toMinutes(time){
 }
 
 var app = new App()
-var app = new App({task:0.25, shortBreak:0.125, notification:0.125})
 app.run()
 
 var
