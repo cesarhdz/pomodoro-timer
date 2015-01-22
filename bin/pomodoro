@@ -16,6 +16,12 @@
 
 // # pomodoro-timer
 
+//@TODO use node-time http://stackoverflow.com/a/10825813/915034
+// https://github.com/TooTallNate/node-time
+// Moment.js is another options
+// 
+// process.env.TZ = 'America/Mexico_City'
+
 var growl    = require('growl')
   , path     = require('path')
   , version  = require('../package').version
@@ -23,13 +29,26 @@ var growl    = require('growl')
   , pomodoro = path.join(__dirname, '..', 'assets', 'pomodoro-timer.png')
 
 
-  , ProgressBar = require('progress')
-
   , App = require('../src/pomodoro')
+
+  , chalk = require('chalk')
 
 
 function toMinutes(time){
-  return parseInt(time / 1000 / 60) + ":" + (time / 1000 % 60)
+
+  var 
+  sec = time / 1000 % 60,
+  min = parseInt(time / 1000 / 60)
+
+  function pad(str){
+    var 
+    format = '00',
+    str = str + ''
+
+    return format.substring(0, format.length - str.length) + str
+  }
+
+  return  pad(min) + ":" + pad(sec)
 }
 
 var app = new App()
@@ -40,61 +59,49 @@ now = function(){
   return new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 },
 
-timer = function(label){ return function(time){
+timer = function(label, color){ return function(time){
 
   var
   times = 0, 
-  interval = 30 * 1000,
+  interval = 1 * 1000, // Update every minute
   total =  toMinutes(time),
   cb = setInterval(function(){
     times++
+    
+    process.stdout.clearLine()
+    process.stdout.cursorTo(0)
+    process.stdout.write(
+      "| [" + label + '] => ' + chalk[color](toMinutes(times * interval) + ' / ' + total)
+    )
 
-    console.log("\n| [" + label + '] => ' + toMinutes(times * interval) + ' / ' + total)
   }, interval)
 
   setTimeout(function(){
     clearInterval(cb)
   }, time)
 
-}},
-
-progressBar = function(label){
-  return function(time){
-      var
-      step = 10 * 1000, //ms
-      timeBar = new ProgressBar("|:bar|\n", { 
-        total: (time - step)/ step,
-        width: 70,
-        incomplete: ' ',
-        complete: '.',
-        clear: true
-      });
-
-      timeBar.tick(0);
-
-      setInterval(function(){
-        timeBar.tick()
-      }, step);
-  }
-}
+}}
 
 
 app.on('task.start', function(time, task){
   console.log(
-              "===========================================================\n" 
-              + '# Stating task [' + task + '] at ' + now() + "\n" +
-              "==========================================================="
+              chalk.gray('===========================================================') + "\n"
+              + '# Stating task ' + chalk.green(task) + ' at ' + now() + "\n" +
+              chalk.gray('===========================================================') + "\n"
               )
 })
 
 
-app.on('task.start', timer('Task') )
-app.on('task.start', progressBar('Task timer'))
+app.on('task.start', timer('Task', 'cyan') )
+// app.on('task.start', progressBar('Task timer'))
 
+app.on('task.timeover', function(){
+  console.log(
+    "\n\n" + chalk.gray('-------------------------- BREAK -------------------------') + "\n"
+  )
+})
 
 app.on('task.timeover.notification', function(timeLeft, task){
-  console.log("\n| You have " +  toMinutes(timeLeft) + ' minutes to complete your task!')
-
   // Growl notification
   growl('Tic tac!', { 
     title: 'You have ' +  toMinutes(timeLeft) + ' minutes to complete your task!', 
@@ -103,23 +110,16 @@ app.on('task.timeover.notification', function(timeLeft, task){
 })
 
 
-app.on('task.timeover', function(task){
-  console.log('| Hope you have finished, now you should take a break')
-})
-
-
 app.on('shortBreak.start', function(time){
-  console.log('! Starting  short break at ' + now())
-
   // Growl notification
-  growl('Break time starts', { 
+  growl('Break time', { 
     title: 'It\'s time to have a Break!', 
     image: pomodoro 
   })
 })
 
-app.on('shortBreak.start', timer('Break'))
-app.on('shortBreak.start', progressBar('Break Timer'))
+app.on('shortBreak.start', timer('Break', 'yellow'))
+// app.on('shortBreak.start', progressBar('Break Timer'))
 
 app.on('shortBreak.timeover', function(){
   // Growl notification
@@ -128,8 +128,8 @@ app.on('shortBreak.timeover', function(){
     image: pomodoro 
   })
 
-  console.log("\n\n-------------------------")
-  console.log("Starting a new Task !")
+  console.log("\n\n" + chalk.gray('...........................................................'))
+  console.log(chalk.gray("* Starting a new Task !"))
 })
 
 return 
