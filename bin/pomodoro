@@ -25,9 +25,7 @@
 var growl    = require('growl')
   , path     = require('path')
   , version  = require('../package').version
-  // , play     = require('play').Play()
   , pomodoro = path.join(__dirname, '..', 'assets', 'pomodoro-timer.png')
-
 
   , App = require('../src/pomodoro')
 
@@ -93,7 +91,6 @@ app.on('task.start', function(time, task){
 
 
 app.on('task.start', timer('Task', 'cyan') )
-// app.on('task.start', progressBar('Task timer'))
 
 app.on('task.timeover', function(){
   console.log(
@@ -119,7 +116,6 @@ app.on('shortBreak.start', function(time){
 })
 
 app.on('shortBreak.start', timer('Break', 'yellow'))
-// app.on('shortBreak.start', progressBar('Break Timer'))
 
 app.on('shortBreak.timeover', function(){
   // Growl notification
@@ -131,5 +127,3 @@ app.on('shortBreak.timeover', function(){
   console.log("\n\n" + chalk.gray('...........................................................'))
   console.log(chalk.gray("* Starting a new Task !"))
 })
-
-return 
