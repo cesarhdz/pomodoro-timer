@@ -51,11 +51,9 @@ function toMinutes(time){
   return  pad(min) + ":" + pad(sec)
 }
 
-var app = new App()
-var app = new App({task:.5, shortBreak:.25, notification:.25})
+var 
+app = new App(),
 
-
-var
 now = function(){
   return dateFormat(new Date(), "h:MM:ss")
 },
