@@ -2,6 +2,7 @@ var events = require('events')
   , program  = require('commander')
   , extend = require('util')._extend
   , MINUTES = 60000
+  , TaskProvider = require('./TodoTxtProvider')
 
 
 var Pomodoro = function Pomodoro(config){
@@ -21,6 +22,7 @@ var Pomodoro = function Pomodoro(config){
 	this.emit = bus.emit
 
 	this.config = extend(defaults, config)
+	this.taskProvider = new TaskProvider(this)
 
 }
 
@@ -32,7 +34,12 @@ Pomodoro.prototype.startTask = function(){
 	time = this.config.task * MINUTES,
 	notification = time - (this.config.notification * MINUTES)
 
-	program.prompt('Task Name: ', function(task){
+	// Prompt task
+	this.taskProvider.promptTask()
+
+
+	// Starts a new task
+	.then(function(task){
 		app.emit('task.start', time, task)
 
 		// Send notification
@@ -46,6 +53,7 @@ Pomodoro.prototype.startTask = function(){
 			app.startBreak()
 		}, time)
 	})
+
 }
 
 Pomodoro.prototype.startBreak = function(){
@@ -68,7 +76,15 @@ Pomodoro.prototype.startBreak = function(){
 
 
 Pomodoro.prototype.run = function(){
-	this.startTask()
+	
+	var app = this
+
+	app.emit('app.start')
+
+	this.taskProvider.init().then(function(){
+		app.startTask()
+	})
+
 }
 
 

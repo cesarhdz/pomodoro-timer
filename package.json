@@ -33,6 +33,9 @@
     "growl": "~1.8",
     "commander": "~1.1.1",
     "chalk": "~0.5.1",
-    "dateformat": "~1.0.11"
+    "dateformat": "~1.0.11",
+    "todotxt-coffee": "git://github.com/cesarhdz/todo.txt-coffee#master",
+    "inquirer": "~0.8.0",
+    "promise": "~6.1.0"
   }
 }

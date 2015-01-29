@@ -52,7 +52,8 @@ function toMinutes(time){
 }
 
 var app = new App()
-app.run()
+var app = new App({task:.5, shortBreak:.25, notification:.25})
+
 
 var
 now = function(){
@@ -81,6 +82,19 @@ timer = function(label, color){ return function(time){
   }, time)
 
 }}
+
+app.on('app.start', function(){
+  console.log("\n")
+  console.log(chalk.yellow('                      o       o '))
+  console.log(chalk.yellow('                      |       | '))
+  console.log(chalk.yellow('o-o  o-o o-O-o o-o   -o- \\ / -o-'))
+  console.log(chalk.yellow('|  | | | | | | | |    |   o   | '))
+  console.log(chalk.yellow('O-o  o-o o o o o-o O  o  / \\  o '))
+  console.log(chalk.yellow('|                               '))
+  console.log(chalk.yellow('o                               '))
+  console.log("\n")
+  console.log(chalk.green('* Starting a new Journey at ' + now() ))
+})
 
 
 app.on('task.start', function(time, task){
@@ -132,3 +146,6 @@ app.on('shortBreak.timeover', function(){
     image: pomodoro 
   })
 })
+
+
+app.run()
