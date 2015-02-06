@@ -53,6 +53,7 @@ function toMinutes(time){
 
 var 
 app = new App(),
+// app = new App({task:0.5, shortBreak:.025}), //demo
 
 now = function(){
   return dateFormat(new Date(), "h:MM:ss")
@@ -143,6 +144,23 @@ app.on('shortBreak.timeover', function(){
     title: 'You have to get back to work!', 
     image: pomodoro 
   })
+})
+
+var taskReminder
+
+app.on('shortBreak.timeover', function(){
+  // Notify when break time is over, but you haven't choose a task
+  taskReminder = setInterval(function(){
+    growl('Are you still there?',{
+      title: "You haven't choose any task to work with",
+      image: pomodoro
+    })
+  }, 60 * 1000)
+})
+
+
+app.on('task.start', function(){
+  if(taskReminder) clearInterval(taskReminder)
 })
 
 
