@@ -54,10 +54,12 @@ TodoTxtProvider.prototype.promptTask = function(){
 
 	var provider = this
 
+	this.reload(this.path)
+
 	return new Promise(function(resolve, reject){
 		inquirer.prompt([{
 			name: 'task',
-			type: 'rawlist',
+			type: 'list',
 			message: 'Select a task',
 			choices: provider.getRawList()
 		}], function(args){
