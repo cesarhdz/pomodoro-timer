@@ -1,7 +1,7 @@
 var
 notifier = require('node-notifier'),
 path     = require('path'),
-cliTimer = require('./CliTimer')
+timer 	 = require('./Timer'),
 
 icon = path.join(__dirname, '..', 'assets', 'pomodoro-timer.png')
 
@@ -39,7 +39,7 @@ OSNotifier.prototype.connect = function(app){
 	app.on('task.timeover.notification', function(timeLeft, task){
 	  osNotifier.notify({
 	  	title: 'Tic Tac!',
-	    message: 'You have ' +  cliTimer.toMinutes(timeLeft) + ' minutes to complete your task!', 
+	    message: 'You have ' +  timer.toMinutes(timeLeft) + ' minutes to complete your task!', 
 	    sound: true
 	  })
 	})

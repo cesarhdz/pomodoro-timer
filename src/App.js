@@ -4,7 +4,7 @@ var events = require('events')
   , TaskProvider = require('./TodoTxtProvider')
 
 
-var Pomodoro = function Pomodoro(config){
+var App = function App(config){
 
 	var defaults = {
 		task: 25,
@@ -25,8 +25,10 @@ var Pomodoro = function Pomodoro(config){
 
 }
 
+App.prototype.version = require('../package').version
 
-Pomodoro.prototype.startTask = function(){
+
+App.prototype.startTask = function(){
 
 	var 
 	app = this,
@@ -55,7 +57,7 @@ Pomodoro.prototype.startTask = function(){
 
 }
 
-Pomodoro.prototype.startBreak = function(){
+App.prototype.startBreak = function(){
 	//@TODO Determine if break is short or long
 	//
 	
@@ -74,7 +76,7 @@ Pomodoro.prototype.startBreak = function(){
 
 
 
-Pomodoro.prototype.run = function(){
+App.prototype.run = function(){
 	
 	var app = this
 
@@ -88,4 +90,4 @@ Pomodoro.prototype.run = function(){
 
 
 
-module.exports = Pomodoro
+module.exports = App

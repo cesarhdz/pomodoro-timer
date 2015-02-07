@@ -2,10 +2,10 @@ var
 chalk = require('chalk')
 
 
-function CliTimer(){}
+function Timer(){}
 
 
-CliTimer.toMinutes = function(time){
+Timer.toMinutes = function(time){
   var 
   sec = time / 1000 % 60,
   min = parseInt(time / 1000 / 60)
@@ -22,11 +22,11 @@ CliTimer.toMinutes = function(time){
 }
 
 
-CliTimer.prototype.buildTimer = function(label, color){ return function(time){
+Timer.prototype.buildTimer = function(label, color){ return function(time){
   var
   times = 0, 
   interval = 1 * 1000, // Update every minute
-  total =  CliTimer.toMinutes(time),
+  total =  Timer.toMinutes(time),
 
   cb = setInterval(function(){
     times++
@@ -34,7 +34,7 @@ CliTimer.prototype.buildTimer = function(label, color){ return function(time){
     process.stdout.clearLine()
     process.stdout.cursorTo(0)
     process.stdout.write(
-      "| [" + label + '] => ' + chalk[color](' ' + CliTimer.toMinutes(times * interval)  + ' ')
+      "| [" + label + '] => ' + chalk[color](' ' + Timer.toMinutes(times * interval)  + ' ')
     )
 
   }, interval)
@@ -45,11 +45,11 @@ CliTimer.prototype.buildTimer = function(label, color){ return function(time){
 
 }}
 
-CliTimer.prototype.connect = function(app){
+Timer.prototype.connect = function(app){
 	app.on('task.start', this.buildTimer('Task', 'bgGreen') )
 	app.on('shortBreak.start', this.buildTimer('Break', 'bgYellow'))
 }
 
 
-module.exports = CliTimer
+module.exports = Timer
 

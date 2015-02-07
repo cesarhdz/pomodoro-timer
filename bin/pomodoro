@@ -1,21 +1,16 @@
 #!/usr/bin/env node
 
 var 
-path     = require('path'),
-version  = require('../package').version,
-
-App = require('../src/pomodoro'),
-OSNotifier = require('../src/OSNotifier'),
-CliTimer = require('../src/CliTimer'),
+pomo     = require('../src/index'),
 
 chalk = require('chalk'),
-
 dateFormat = require('dateformat')
 
 
 var 
-// app = new App(),
-app = new App({task:0.5, shortBreak:.5}), //dev mode
+app = new pomo.App(),
+
+// var app = new pomo.App({task:0.5, shortBreak:.5}), //dev mode
 
 now = function(){
   return dateFormat(new Date(), "h:MM:ss")
@@ -60,8 +55,8 @@ app.on('shortBreak.timeover', function(){
 
 
 var 
-osNotifier = new OSNotifier(),
-timer = new CliTimer()
+osNotifier = new pomo.OSNotifier(),
+timer = new pomo.Timer()
 
 
 timer.connect(app)
