@@ -47,7 +47,7 @@ TodoTxtProvider.prototype.reload = function(path){
 TodoTxtProvider.prototype.getRawList = function(){
 	return this.list.list.map(function(t, i){ 
 		return t.raw().replace("\r", '')
-	})
+	}).sort()
 }
 
 TodoTxtProvider.prototype.promptTask = function(){
@@ -59,7 +59,7 @@ TodoTxtProvider.prototype.promptTask = function(){
 	return new Promise(function(resolve, reject){
 		inquirer.prompt([{
 			name: 'task',
-			type: 'list',
+			type: 'rawlist',
 			message: 'Select a task',
 			choices: provider.getRawList()
 		}], function(args){
