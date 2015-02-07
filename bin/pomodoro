@@ -6,59 +6,21 @@ version  = require('../package').version,
 
 App = require('../src/pomodoro'),
 OSNotifier = require('../src/OSNotifier'),
+CliTimer = require('../src/CliTimer'),
 
 chalk = require('chalk'),
 
 dateFormat = require('dateformat')
 
 
-function toMinutes(time){
-
-  var 
-  sec = time / 1000 % 60,
-  min = parseInt(time / 1000 / 60)
-
-  function pad(str){
-    var 
-    format = '00',
-    str = str + ''
-
-    return format.substring(0, format.length - str.length) + str
-  }
-
-  return  pad(min) + ":" + pad(sec)
-}
-
 var 
-app = new App(),
-// app = new App({task:0.5, shortBreak:.5}), //dev mode
+// app = new App(),
+app = new App({task:0.5, shortBreak:.5}), //dev mode
 
 now = function(){
   return dateFormat(new Date(), "h:MM:ss")
-},
+}
 
-timer = function(label, color){ return function(time){
-
-  var
-  times = 0, 
-  interval = 1 * 1000, // Update every minute
-  total =  toMinutes(time),
-  cb = setInterval(function(){
-    times++
-    
-    process.stdout.clearLine()
-    process.stdout.cursorTo(0)
-    process.stdout.write(
-      "| [" + label + '] => ' + chalk[color](' ' + toMinutes(times * interval)  + ' ')
-    )
-
-  }, interval)
-
-  setTimeout(function(){
-    clearInterval(cb)
-  }, time)
-
-}}
 
 app.on('app.start', function(){
   console.log("\n")
@@ -83,17 +45,11 @@ app.on('task.start', function(time, task){
 })
 
 
-app.on('task.start', timer('Task', 'bgGreen') )
-
 app.on('task.timeover', function(){
   console.log(
     "\n\n" + chalk.gray('-------------------------- BREAK --------------------------') + "\n"
   )
 })
-
-
-app.on('shortBreak.start', timer('Break', 'bgYellow'))
-
 
 
 app.on('shortBreak.timeover', function(){
@@ -103,9 +59,12 @@ app.on('shortBreak.timeover', function(){
 })
 
 
-var osNotifier = new OSNotifier()
+var 
+osNotifier = new OSNotifier(),
+timer = new CliTimer()
 
 
+timer.connect(app)
 osNotifier.connect(app)
 
 
