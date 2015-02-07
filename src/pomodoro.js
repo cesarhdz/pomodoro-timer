@@ -1,5 +1,4 @@
 var events = require('events')
-  , program  = require('commander')
   , extend = require('util')._extend
   , MINUTES = 60000
   , TaskProvider = require('./TodoTxtProvider')

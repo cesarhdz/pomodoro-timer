@@ -1,37 +1,15 @@
 #!/usr/bin/env node
 
-//     pomodoro-timer
-//     Copyright (c) 2013 Nick Baugh <niftylettuce@gmail.com>
-//     MIT Licensed
+var 
+path     = require('path'),
+version  = require('../package').version,
 
-//
-// Free Pomodoro® Technique CLI timer built with Node.
-//
-// The Pomodoro Technique® and Pomodoro™ are
-//  registered trademarks of Francesco Cirillo.
-//
+App = require('../src/pomodoro'),
+OSNotifier = require('../src/OSNotifier'),
 
-// * Author: [@niftylettuce](https://twitter.com/#!/niftylettuce)
-// * Source: <https://github.com/niftylettuce/pomodoro-timer>
+chalk = require('chalk'),
 
-// # pomodoro-timer
-
-//@TODO use node-time http://stackoverflow.com/a/10825813/915034
-// https://github.com/TooTallNate/node-time
-// Moment.js is another options
-// 
-// process.env.TZ = 'America/Mexico_City'
-
-var growl    = require('growl')
-  , path     = require('path')
-  , version  = require('../package').version
-  , pomodoro = path.join(__dirname, '..', 'assets', 'pomodoro-timer.png')
-
-  , App = require('../src/pomodoro')
-
-  , chalk = require('chalk')
-
-  , dateFormat = require('dateformat')
+dateFormat = require('dateformat')
 
 
 function toMinutes(time){
@@ -53,7 +31,7 @@ function toMinutes(time){
 
 var 
 app = new App(),
-// app = new App({task:0.5, shortBreak:.025}), //demo
+// app = new App({task:0.5, shortBreak:.5}), //dev mode
 
 now = function(){
   return dateFormat(new Date(), "h:MM:ss")
@@ -113,22 +91,6 @@ app.on('task.timeover', function(){
   )
 })
 
-app.on('task.timeover.notification', function(timeLeft, task){
-  // Growl notification
-  growl('Tic tac!', { 
-    title: 'You have ' +  toMinutes(timeLeft) + ' minutes to complete your task!', 
-    image: pomodoro 
-  })
-})
-
-
-app.on('shortBreak.start', function(time){
-  // Growl notification
-  growl('Break time', { 
-    title: 'It\'s time to have a Break!', 
-    image: pomodoro 
-  })
-})
 
 app.on('shortBreak.start', timer('Break', 'bgYellow'))
 
@@ -138,30 +100,13 @@ app.on('shortBreak.timeover', function(){
   console.log(
     chalk.gray("\n\n................ END OF TASK @ " + now() + " ...................\n")
   )
-
-  // Growl notification
-  growl('Break Time is over', { 
-    title: 'You have to get back to work!', 
-    image: pomodoro 
-  })
-})
-
-var taskReminder
-
-app.on('shortBreak.timeover', function(){
-  // Notify when break time is over, but you haven't choose a task
-  taskReminder = setInterval(function(){
-    growl('Are you still there?',{
-      title: "You haven't choose any task to work with",
-      image: pomodoro
-    })
-  }, 60 * 1000)
 })
 
 
-app.on('task.start', function(){
-  if(taskReminder) clearInterval(taskReminder)
-})
+var osNotifier = new OSNotifier()
+
+
+osNotifier.connect(app)
 
 
 app.run()
