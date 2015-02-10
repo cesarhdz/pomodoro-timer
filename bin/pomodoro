@@ -7,10 +7,9 @@ chalk = require('chalk'),
 dateFormat = require('dateformat')
 
 
-var 
-app = new pomo.App(),
-
-// var app = new pomo.App({task:0.5, shortBreak:.5}), //dev mode
+var app = new pomo.App(),
+// 
+// var app = new pomo.App({task:0.2, shortBreak:.1, notification:0.1}), //dev mode
 
 now = function(){
   return dateFormat(new Date(), "h:MM:ss")
@@ -56,11 +55,12 @@ app.on('shortBreak.timeover', function(){
 
 var 
 osNotifier = new pomo.OSNotifier(),
-timer = new pomo.Timer()
+timer = new pomo.Timer(),
+logger = new pomo.Logger()
 
 
 timer.connect(app)
 osNotifier.connect(app)
-
+logger.connect(app)
 
 app.run()
