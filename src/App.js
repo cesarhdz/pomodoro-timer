@@ -11,7 +11,10 @@ var App = function App(config){
 		shortBreak: 5,
 		longBreak: 15,
 		shortIntervals: 5,
-		notification: 5
+		notification: 5,
+
+		// Current path
+		path: './'
 	}
 
 	// Inherit bus behavior
@@ -59,8 +62,6 @@ App.prototype.startTask = function(){
 
 App.prototype.startBreak = function(){
 	//@TODO Determine if break is short or long
-	//
-	
 	var
 	app = this,
 	time = this.config.shortBreak * MINUTES
@@ -81,11 +82,7 @@ App.prototype.run = function(){
 	var app = this
 
 	app.emit('app.start')
-
-	this.taskProvider.init().then(function(){
-		app.startTask()
-	})
-
+	app.startTask()
 }
 
 

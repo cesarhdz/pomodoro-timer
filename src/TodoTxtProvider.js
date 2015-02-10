@@ -6,38 +6,13 @@ ENCODING = 'utf8',
 Promise = require("promise")
 
 
-function TodoTxtProvider(pomodoro){
+function TodoTxtProvider(app){
 	this.list = null
-	this.path = null
+	this.path = app.config.path
 }
 
 
 TodoTxtProvider.name = 'todo-txt';
-
-TodoTxtProvider.prototype.init = function(){
-	var provider = this
-	
-	return new Promise(function(resolve, rejct){
-		inquirer.prompt([{
-			name: 'path',
-			type: 'input',
-			message: "Please insert the path to the todo.txt file you want to use\n",
-			validate: function(path){
-				if(! fs.existsSync(path)) return "File [" + path + "] doesn't exists"
-
-				var tasks = new TodoList(path)
-				
-				return (tasks.list.length ) ? true : "The file doesn't have a valid syntax or any task"
-			}
-		}], function(args){
-			//@TODO avoid exceptions when path is not found and prompt again
-			provider.path = args.path
-			provider.reload(args.path)
-
-			resolve(provider)
-		})
-	})
-}
 
 
 TodoTxtProvider.prototype.reload = function(path){
