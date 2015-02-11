@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var 
-pomo     = require('../src/index'),
+pomo = require('../src/index'),
 
 chalk = require('chalk'),
 moment = require('moment')
@@ -53,14 +53,8 @@ app.on('shortBreak.timeover', function(){
 })
 
 
-var 
-osNotifier = new pomo.OSNotifier(),
-timer = new pomo.Timer(),
-logger = new pomo.Logger()
-
-
-timer.connect(app)
-osNotifier.connect(app)
-logger.connect(app)
+new pomo.OSNotifier().connect(app)
+new pomo.Timer().connect(app)
+new pomo.Logger().connect(app)
 
 app.run()

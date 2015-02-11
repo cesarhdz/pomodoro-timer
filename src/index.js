@@ -4,6 +4,7 @@ module.exports = {
 	OSNotifier: require('../src/OSNotifier'),
 	Timer: require('../src/Timer'),
 	Logger: require('../src/Logger'),
-	TdoTxtProvider: require('../src/TodoTxtProvider')
+	TdoTxtProvider: require('../src/TodoTxtProvider'),
+	TodoTxtList: require('../src/TodoTxtList')
 }
 
