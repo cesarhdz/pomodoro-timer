@@ -36,6 +36,7 @@
     "inquirer": "~0.8.0",
     "node-notifier": "^4.1.0",
     "promise": "~6.1.0",
-    "todotxt-coffee": "git://github.com/cesarhdz/todo.txt-coffee#master"
+    "todotxt-coffee": "git://github.com/cesarhdz/todo.txt-coffee#master",
+    "moment": "~2.9.0"
   }
 }

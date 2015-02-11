@@ -1,14 +1,14 @@
 var
 fs = require('fs'),
-dateFormat = require('dateformat'),
+moment = require('moment'),
 
 
-DATE_FORMAT = 'yyyy-mm-dd hh:MM:ss',
+DATE_FORMAT = "YYYY-MM-DD[T]hh:MM:ss",
 FILE = 'pomo.txt'
 
 
-function Logger(){
-	this.path = './'
+function Logger(path){
+	this.path = path || './'
 }
 
 Logger.prototype.connect = function(app){
@@ -21,12 +21,22 @@ Logger.prototype.connect = function(app){
 	})
 }
 
+Logger.prototype.fs = require('fs')
+
+Logger.prototype.timestamp = function(task){
+	return moment().format(DATE_FORMAT) + ' ' + task + "\n"
+}
+
+Logger.prototype.getFilePath = function(){
+	return this.path + FILE
+}
 
 Logger.prototype.write = function(task){
-	//@TODO Remove priority and date
-	var msg =  dateFormat(new Date(), DATE_FORMAT) + ' ' + task + "\n"
+	var 
+	file = this.getFilePath(),
+	msg = this.timestamp(task)
 
-	fs.appendFile(FILE, msg, function (err){
+	this.fs.appendFile(file, msg, function (err){
 		if(err) console.log(err)
 	})
 }
