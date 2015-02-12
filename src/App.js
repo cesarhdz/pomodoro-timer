@@ -1,31 +1,52 @@
-var events = require('events')
-  , extend = require('util')._extend
-  , MINUTES = 60000
-  , TaskProvider = require('./TodoTxtProvider')
+var
+events = require('events'),
+Config = require('./Config'),
+TaskProvider = require('./TodoTxtProvider'),
 
 
-var App = function App(config){
+MINUTES = 60000,
 
-	var defaults = {
-		task: 25,
-		shortBreak: 5,
-		longBreak: 15,
-		shortIntervals: 5,
-		notification: 5,
+APP_NAME = 'pomotxt',
 
-		// Current path
-		path: './'
-	}
+defaults = {
+	
+	// Minutes a task will last (pomodoro)
+	task: 25,
+	
+	// Minutes Short interval will last
+	shortBreak: 5,
+	
+	// minutes long break interval will last
+	longBreak: 15,
 
+	// After (n) intervals elapsed, a longBreak will be used
+	shortIntervals: 5,
+
+	// Notification before task time ends
+	notification: 5,
+
+	// Show a reminder {n} minutes if no task is selected
+	reminder: 2,
+
+	// Current path
+	path: './'
+}
+
+
+var App = function App(){
 	// Inherit bus behavior
-	var bus = new events.EventEmitter()
+	var 
+	bus = new events.EventEmitter(),
+	config = new Config(APP_NAME, defaults)
+
 
 	this.on = bus.on
 	this.emit = bus.emit
 
-	this.config = extend(defaults, config)
+	this.config = config.load()
 	this.taskProvider = new TaskProvider(this)
 
+	console.log(this.config)
 }
 
 App.prototype.version = require('../package').version

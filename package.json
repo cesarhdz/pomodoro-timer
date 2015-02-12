@@ -37,7 +37,8 @@
     "node-notifier": "^4.1.0",
     "promise": "~6.1.0",
     "moment": "~2.9.0",
-    "todo.txt": "0.0.2"
+    "todo.txt": "0.0.2",
+    "rc": "~0.6.0"
   },
   "devDependencies": {
     "cases": "^0.1.1",

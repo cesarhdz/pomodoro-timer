@@ -8,7 +8,6 @@ icon = path.join(__dirname, '..', 'assets', 'pomodoro-timer.png')
 
 function OSNotifier(){
 	this.useSounds = true
-	this.reminderTime = 60 //seconds
 }
 
 
@@ -51,7 +50,12 @@ OSNotifier.prototype.connect = function(app){
 	  })
 	})
 
+	app.on('task.start', function(){
+	  if(taskReminder) clearInterval(taskReminder)
+	})
 
+	if(! app.config.reminder) return
+		
 	app.on('shortBreak.timeover', function(){
 	  osNotifier.notify({
 	  	title:'Break Time is over',
@@ -66,12 +70,7 @@ OSNotifier.prototype.connect = function(app){
 	      message: "You haven't choose any task to work with",
 	      sound: true
 	    })
-	  }, osNotifier.reminderTime * 1000)
-	})
-
-
-	app.on('task.start', function(){
-	  if(taskReminder) clearInterval(taskReminder)
+	  }, app.config.reminder * 1000)
 	})
 }
 
