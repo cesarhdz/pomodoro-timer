@@ -70,7 +70,7 @@ OSNotifier.prototype.connect = function(app){
 	      message: "You haven't choose any task to work with",
 	      sound: true
 	    })
-	  }, app.config.reminder * 1000)
+	  }, app.config.reminder * 60 * 1000)
 	})
 }
 
