@@ -12,7 +12,7 @@ var app = new pomo.App(),
 // var app = new pomo.App({task:0.2, shortBreak:.1, notification:0.1}), //dev mode
 
 now = function(){
-  return moment().format("h:MM:ss")
+  return moment(new Date()).format("hh:mm:ss")
 }
 
 
