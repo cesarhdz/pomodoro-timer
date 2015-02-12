@@ -45,8 +45,6 @@ var App = function App(){
 
 	this.config = config.load()
 	this.taskProvider = new TaskProvider(this)
-
-	console.log(this.config)
 }
 
 App.prototype.version = require('../package').version
