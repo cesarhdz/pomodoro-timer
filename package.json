@@ -40,9 +40,10 @@
     "todo.txt": "0.0.2"
   },
   "devDependencies": {
+    "cases": "^0.1.1",
+    "chai": "~2.0.0",
     "mocha": "~2.1.0",
-    "mock-fs": "~2.5.0",
-    "chai": "~2.0.0"
+    "mock-fs": "~2.5.0"
   },
   "scripts": {
     "test": "mocha --ui bdd specs/"

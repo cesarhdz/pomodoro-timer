@@ -69,12 +69,9 @@ TodoTxtList.prototype.$filter = function(item){
 
 	var q = this.query
 
-
 	if(q.completed != undefined){
-		var done = item.text[0] == 'x'
-
-		if(q.completed && !done) return false
-		if(!q.completed && done) return false
+		if(q.completed && !item.isCompleted()) return false
+		if(!q.completed && item.isCompleted()) return false
 	}
 
 	
