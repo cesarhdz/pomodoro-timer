@@ -1,3 +1,5 @@
+require('array.prototype.find')
+
 var 
 inquirer = require("inquirer"),
 ENCODING = 'utf8',
@@ -23,46 +25,75 @@ function TodoTxtProvider(app){
 	}
 }
 
-//@deprecated
-TodoTxtProvider.name = 'todo-txt';
 
-TodoTxtProvider.prototype.reload = function(path){
-	this.todo = TodoTxtList.parseFromFile(this.file)
+// Wrapper to TodoList.parseFromFile
+TodoTxtProvider.prototype.load = function(file){
+	return TodoTxtList.parseFromFile(file)
 }
 
-TodoTxtProvider.prototype.getRawList = function(){
+TodoTxtProvider.prototype.getRawList = function(todo){
 
 	var provider = this
 
-	return this
-		.todo
-		.pending()
-		.findAll()
-		.map(function(t, i){ 
+	/**
+	 * Formats a task with colors based on priority
+	 * @param  {task} t Task to be formatted
+	 * @param  {i} i index
+	 * @return {String}   Formatted task
+	 */
+	function format(t, i){
+		var 
+		pri = t.priority ? '(' + t.priority + ') ' : '',
+		msg = pri + t.text,
+		color = provider.colors[t.priority] ? provider.colors[t.priority] : provider.colors.none
+
+		return chalk[color](msg)
+	}
 
 
-			var 
-			pri = t.priority ? '(' + t.priority + ') ' : '',
-			msg = pri + t.text,
-			color = provider.colors[t.priority] ? provider.colors[t.priority] : provider.colors.none
+	return todo.pending().findAll().map(format)
+}
 
-			return chalk[color](msg)
-		})
+TodoTxtProvider.prototype.findTask = function(str, todo){
+
+	// Remove colors to find task
+	var q = chalk.stripColor(str)
+
+	return todo.getItems().find(function(t,i){
+		return (q.indexOf(t.text) !== -1)
+	})
+
 }
 
 TodoTxtProvider.prototype.promptTask = function(){
 
-	var provider = this
+	var 
+	self = this,
+	todo = this.load(this.file),
 
-	this.reload(this.path)
+	// Options to send to inquierer
+	taskPrompt = {
+		name:'task',
+		type: 'rawlist',
+		message: "Select a task\n",
+		paginate: true,
+
+		// Convert todo into a list with only text
+		choices: this.getRawList(todo),
+
+		// Converts rawText into a TodoTask
+		filter: function(i){ return self.findTask(i, todo) }
+	}
+
+	
+	//@TODO Append a new task or call reject
+	if(! taskPrompt.choices){
+		throw new Error('The file ' + chalk.cyan(this.file) + " doesn't contains any task")
+	}
 
 	return new Promise(function(resolve, reject){
-		inquirer.prompt([{
-			name: 'task',
-			type: 'rawlist',
-			message: 'Select a task',
-			choices: provider.getRawList()
-		}], function(args){
+
+		inquirer.prompt([taskPrompt], function(args){
 			resolve(args.task)
 		})
 	})
