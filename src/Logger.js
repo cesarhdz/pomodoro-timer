@@ -17,7 +17,7 @@ Logger.prototype.connect = function(app){
 	this.path = app.config.path
 
 	app.on('task.timeover', function(task){
-		logger.write(task)
+		logger.write(task.text)
 	})
 }
 
