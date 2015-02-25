@@ -3,7 +3,7 @@ fs = require('fs'),
 moment = require('moment'),
 
 
-DATE_FORMAT = "YYYY-MM-DD[T]hh:mm:ss",
+DATE_FORMAT = "YYYY-MM-DD[T]HH:mm:ss",
 FILE = 'pomo.txt'
 
 
