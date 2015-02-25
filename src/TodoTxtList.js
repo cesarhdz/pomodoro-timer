@@ -1,3 +1,5 @@
+'use strict'
+
 var
 todo = require('todo.txt'),
 ENCODING = 'utf8'
@@ -22,7 +24,7 @@ TodoTxtList.parseFromFile = function(path){
 
 TodoTxtList.parse = function(str){
     var 
-    lines = str.replace("\r", "").split("\n"),
+    lines = str.replace('\r', '').split('\n'),
 
     items = lines.map(function(i){
     	return new todo.TodoItem(i)
@@ -59,7 +61,7 @@ TodoTxtList.prototype.$compare = function(a,b){
 	ap = a.priority || '~',
 	bp = b.priority || '~'
 
-	if(ap != bp) return (ap > bp ) ? 1 : -1;
+	if(ap !== bp){ return (ap > bp ) ? 1 : -1 }
 
 	return 0
 }
@@ -69,9 +71,9 @@ TodoTxtList.prototype.$filter = function(item){
 
 	var q = this.query
 
-	if(q.completed != undefined){
-		if(q.completed && !item.isCompleted()) return false
-		if(!q.completed && item.isCompleted()) return false
+	if(q.completed !== undefined){
+		if(q.completed && !item.isCompleted()){ return false }
+		if(!q.completed && item.isCompleted()){ return false }
 	}
 
 	

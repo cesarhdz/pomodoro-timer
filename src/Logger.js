@@ -1,9 +1,9 @@
+'use strict'
+
 var
-fs = require('fs'),
 moment = require('moment'),
 
-
-DATE_FORMAT = "YYYY-MM-DD[T]HH:mm:ss",
+DATE_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss',
 FILE = 'pomo.txt'
 
 
@@ -24,7 +24,7 @@ Logger.prototype.connect = function(app){
 Logger.prototype.fs = require('fs')
 
 Logger.prototype.timestamp = function(task){
-	return moment().format(DATE_FORMAT) + ' ' + task + "\n"
+	return moment().format(DATE_FORMAT) + ' ' + task + '\n'
 }
 
 Logger.prototype.getFilePath = function(){
@@ -37,7 +37,7 @@ Logger.prototype.write = function(task){
 	msg = this.timestamp(task)
 
 	this.fs.appendFile(file, msg, function (err){
-		if(err) console.log(err)
+		if(err){ console.log(err) }
 	})
 }
 

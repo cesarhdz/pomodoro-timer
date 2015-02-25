@@ -1,3 +1,5 @@
+'use strict'
+
 var
 notifier = require('node-notifier'),
 path     = require('path'),
@@ -35,7 +37,7 @@ OSNotifier.prototype.connect = function(app){
 	taskReminder,
 	osNotifier = this
 
-	app.on('task.timeover.notification', function(timeLeft, task){
+	app.on('task.timeover.notification', function(timeLeft){
 	  osNotifier.notify({
 	  	title: 'Tic Tac!',
 	    message: 'You have ' +  timer.toMinutes(timeLeft) + ' minutes to complete your task!', 
@@ -43,7 +45,7 @@ OSNotifier.prototype.connect = function(app){
 	  })
 	})
 
-	app.on('shortBreak.start', function(time){
+	app.on('shortBreak.start', function(){
 	  osNotifier.notify({ 
 	  	title: 'Break time',
 	    message: 'It\'s time to have a Break!', 
@@ -51,10 +53,10 @@ OSNotifier.prototype.connect = function(app){
 	})
 
 	app.on('task.start', function(){
-	  if(taskReminder) clearInterval(taskReminder)
+	  if(taskReminder){ clearInterval(taskReminder) }
 	})
 
-	if(! app.config.reminder) return
+	if(! app.config.reminder){ return }
 		
 	app.on('shortBreak.timeover', function(){
 	  osNotifier.notify({
@@ -67,7 +69,7 @@ OSNotifier.prototype.connect = function(app){
 	  taskReminder = setInterval(function(){
 	    osNotifier.notify({
 	      title:'Are you still there?',
-	      message: "You haven't choose any task to work with",
+	      message: 'You haven\'t choose any task to work with',
 	      sound: true
 	    })
 	  }, app.config.reminder * 60 * 1000)

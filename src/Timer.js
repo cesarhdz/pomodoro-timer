@@ -1,3 +1,5 @@
+'use strict'
+
 var
 chalk = require('chalk')
 
@@ -11,14 +13,14 @@ Timer.toMinutes = function(time){
   min = parseInt(time / 1000 / 60)
 
   function pad(str){
-    var 
-    format = '00',
     str = str + ''
+    
+    var format = '00'
 
     return format.substring(0, format.length - str.length) + str
   }
 
-  return  pad(min) + ":" + pad(sec)
+  return  pad(min) + ':' + pad(sec)
 }
 
 
@@ -26,7 +28,7 @@ Timer.prototype.buildTimer = function(label, color){ return function(time){
   var
   times = 0, 
   interval = 1 * 1000, // Update every minute
-  total =  Timer.toMinutes(time),
+  // total =  Timer.toMinutes(time),
 
   cb = setInterval(function(){
     times++
@@ -34,7 +36,7 @@ Timer.prototype.buildTimer = function(label, color){ return function(time){
     process.stdout.clearLine()
     process.stdout.cursorTo(0)
     process.stdout.write(
-      "| [" + label + '] => ' + chalk[color](' ' + Timer.toMinutes(times * interval)  + ' ')
+      '| [' + label + '] => ' + chalk[color](' ' + Timer.toMinutes(times * interval)  + ' ')
     )
 
   }, interval)

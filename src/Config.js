@@ -1,3 +1,5 @@
+'use strict'
+
 /**
  * Wrapper para facilitar la configuracion
  */

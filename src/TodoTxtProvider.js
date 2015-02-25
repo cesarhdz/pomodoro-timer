@@ -1,10 +1,10 @@
+'use strict'
+
 require('array.prototype.find')
 
 var 
-inquirer = require("inquirer"),
-ENCODING = 'utf8',
-Promise = require("promise"),
-todotxt = require('todo.txt'),
+inquirer = require('inquirer'),
+Promise = require('promise'),
 TodoTxtList = require('./TodoTxtList'),
 
 chalk = require('chalk'),
@@ -41,7 +41,7 @@ TodoTxtProvider.prototype.getRawList = function(todo){
 	 * @param  {i} i index
 	 * @return {String}   Formatted task
 	 */
-	function format(t, i){
+	function format(t){
 		var 
 		pri = t.priority ? '(' + t.priority + ') ' : '',
 		msg = pri + t.text,
@@ -59,7 +59,7 @@ TodoTxtProvider.prototype.findTask = function(str, todo){
 	// Remove colors to find task
 	var q = chalk.stripColor(str)
 
-	return todo.getItems().find(function(t,i){
+	return todo.getItems().find(function(t){
 		return (q.indexOf(t.text) !== -1)
 	})
 
@@ -75,7 +75,7 @@ TodoTxtProvider.prototype.promptTask = function(){
 	taskPrompt = {
 		name:'task',
 		type: 'rawlist',
-		message: "Select a task\n",
+		message: 'Select a task\n',
 		paginate: true,
 
 		// Convert todo into a list with only text
@@ -88,10 +88,10 @@ TodoTxtProvider.prototype.promptTask = function(){
 	
 	//@TODO Append a new task or call reject
 	if(! taskPrompt.choices){
-		throw new Error('The file ' + chalk.cyan(this.file) + " doesn't contains any task")
+		throw new Error('The file ' + chalk.cyan(this.file) + ' doesn\'t contains any task')
 	}
 
-	return new Promise(function(resolve, reject){
+	return new Promise(function(resolve){
 
 		inquirer.prompt([taskPrompt], function(args){
 			resolve(args.task)

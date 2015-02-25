@@ -1,3 +1,4 @@
+'use strict'
 
 module.exports = {
 	App: require('../src/App'),
