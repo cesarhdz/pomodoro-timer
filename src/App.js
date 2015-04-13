@@ -33,12 +33,11 @@ defaults = {
 }
 
 
-var App = function App(){
+function App(){
 	// Inherit bus behavior
 	var 
 	bus = new events.EventEmitter(),
 	config = new Config(APP_NAME, defaults)
-
 
 	this.on = bus.on
 	this.emit = bus.emit
@@ -47,22 +46,33 @@ var App = function App(){
 	this.taskProvider = new TaskProvider(this)
 }
 
-App.prototype.version = require('../package').version
+App.version = require('../package').version
 
 
-App.prototype.startTask = function(){
+/**
+ * Start a timer of a given task 
+ * If tasknumber is not given, a dropdown will be prompted to choose one
+ * 
+ * @param  {Integer} taskNumber Task number, same order todo.txt have
+ * @return {void}            
+ */
+App.prototype.startTask = function(taskNumber){
 
 	var 
 	app = this,
 	time = this.config.task * MINUTES,
 	notification = time - (this.config.notification * MINUTES)
 
-	// Prompt task
-	this.taskProvider.promptTask()
+	// console.log(this.taskProvider)
+	// console.log('starting app skipped')
+
+	// Prompt task or get directly
+	promise =  taskNumber ? this.taskProvider.getTask(taskNumber) : this.taskProvider.promptTask()
 
 
 	// Starts a new task
-	.then(function(task){
+	promise.then(function(task){
+
 		app.emit('task.start', time, task)
 
 		// Send notification
@@ -76,6 +86,9 @@ App.prototype.startTask = function(){
 			app.startBreak()
 		}, time)
 	})
+
+
+	return promise
 
 }
 
@@ -95,7 +108,12 @@ App.prototype.startBreak = function(){
 }
 
 
-
+/**
+ * Deprecated
+ * It makes app complex,, directly selecting the task is faster
+ * and more efficient
+ * @return {void} 
+ */
 App.prototype.run = function(){
 	
 	var app = this
