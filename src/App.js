@@ -1,7 +1,10 @@
+'use strict'
+
 var
 events = require('events'),
 Config = require('./Config'),
 TaskProvider = require('./TodoTxtProvider'),
+inquirer = require("inquirer"),
 
 
 MINUTES = 60000,
@@ -58,53 +61,111 @@ App.version = require('../package').version
  */
 App.prototype.startTask = function(taskNumber){
 
-	var 
-	app = this,
-	time = this.config.task * MINUTES,
-	notification = time - (this.config.notification * MINUTES)
-
-	// console.log(this.taskProvider)
-	// console.log('starting app skipped')
+	var self = this,
 
 	// Prompt task or get directly
-	promise =  taskNumber ? this.taskProvider.getTask(taskNumber) : this.taskProvider.promptTask()
-
+	promise =  taskNumber 
+				? this.taskProvider.getTask(taskNumber) 
+				: this.taskProvider.promptTask()
 
 	// Starts a new task
 	promise.then(function(task){
-
-		app.emit('task.start', time, task)
-
-		// Send notification
-		setTimeout(function(){
-			app.emit('task.timeover.notification', app.config.notification * MINUTES, task)
-		}, notification)
-
-		// When task is completed, its sent
-		setTimeout(function(){
-			app.emit('task.timeover', task)
-			app.startBreak()
-		}, time)
+		self.runTask(task)
 	})
+}
 
 
-	return promise
+App.prototype.runTask = function(task){
+
+	var
+	self = this,
+	time = this.config.task * MINUTES,
+	notification = time - (this.config.notification * MINUTES)
+
+	this.emit('task.start', time, task)
+
+	// Send notification
+	setTimeout(function(){
+		self.emit('task.timeover.notification', self.config.notification * MINUTES, task)
+	}, notification)
+
+	// When task is completed, its sent
+	setTimeout(function(){
+		self.emit('task.timeover', task)
+		self.startBreak(task)
+	}, time)
+}
+
+App.prototype.startBreak = function(task){
+	//@TODO Determine if break is short or long
+	var
+	self = this,
+	time = this.config.shortBreak * MINUTES
+
+	this.emit('shortBreak.start', time, task)
+
+	setTimeout(function(){
+		self.emit('shortBreak.timeover')
+		self.resumeOrFinishTask(task)
+	}, time)
 
 }
 
-App.prototype.startBreak = function(){
-	//@TODO Determine if break is short or long
-	var
-	app = this,
-	time = this.config.shortBreak * MINUTES
 
-	app.emit('shortBreak.start', time)
+/**
+ * Action called after break time is finished
+ * Shows a prompt to the user to decide what to next:
+ * 	- Resume task
+ * 	- Stop timer
+ * 	- Stop timer and mark task as done
+ * 	
+ * @param  {Task} task Task currently working
+ * @return {void}      
+ */
+App.prototype.resumeOrFinishTask = function(task){
 
-	setTimeout(function(){
-		app.emit('shortBreak.timeover')
-		app.startTask()
-	}, time)
+	var	
+	key = 'taskResume',
+	self = this,
 
+	taskPrompt = {
+	    type: 'expand',
+    	message: 'Resume or finish task ' + task.text,
+    	name: key,
+    	choices: [
+	      	{
+		        key: 'r',
+		        name: 'Resume task',
+		        value: function(task){ 
+		        	self.runTask(task)
+		        }
+	      	},
+	      	{
+	      		key: 's',
+	      		name: 'Stop Timer',
+	      		value: process.exit
+	      	},
+	      	{
+	      		key: 'x',
+	      		name: 'Stop Timer and mark task as done',
+	      		value: function(task){
+	      			self.taskProvider.markAsDone(task)
+	      				.then(function(){
+	      					process.exit()
+	      				}, function(error){
+	      					console.log(error)
+	      					process.exit()
+	      				})
+	      		}
+	      	}
+		]
+	}
+
+	inquirer.prompt([taskPrompt], function(args){
+		var fn = args[key]
+
+		fn(task)
+	})
 }
 
 

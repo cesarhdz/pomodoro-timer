@@ -90,6 +90,20 @@ TodoTxtProvider.prototype.getTask = function(number){
 	})
 }
 
+
+/**
+ * Mark a task as done
+ * @param  {Task} task Task to be marked as done
+ * @return {Promise}      
+ * @resolve {vooid} If task is successfully marked as done
+ * @reject {error} If any erro ocurr
+ */
+TodoTxtProvider.prototype.markAsDone = function(task){
+	return new Promise(function(resolve, reject){
+		reject('@TODO Mark as done is not implemented, you have to do it manually')
+	})
+}
+
 TodoTxtProvider.prototype.promptTask = function(){
 
 	var 
