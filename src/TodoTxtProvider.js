@@ -28,6 +28,7 @@ function TodoTxtProvider(app){
 
 // Wrapper to TodoList.parseFromFile
 TodoTxtProvider.prototype.load = function(file){
+	//@TODO Check if file exists to avoid throwing meaningless error
 	return TodoTxtList.parseFromFile(file)
 }
 
@@ -65,6 +66,30 @@ TodoTxtProvider.prototype.findTask = function(str, todo){
 
 }
 
+/**
+ * Looks for a task with the given number
+ * @param  {Integer} number Task number, task are ordered by line order as todo.txt do
+ * @return {Promise}
+ * @resolve {Function<Task>} If a task is found, then the task is returned
+ * @reject {error} Return error is task not found
+ */
+TodoTxtProvider.prototype.getTask = function(number){
+	// The number is decreased by one to match array notation
+	var 
+	search = number - 1,
+	self = this
+
+	return new Promise(function(resolve, reject){
+
+		// The we load the item
+		var items = self.load(self.file).getItems()
+
+		if(items[search]){ resolve(items[search]) }
+
+		else{ reject('No task found with number ' + number) }
+	})
+}
+
 TodoTxtProvider.prototype.promptTask = function(){
 
 	var 
@@ -92,6 +117,8 @@ TodoTxtProvider.prototype.promptTask = function(){
 	}
 
 	return new Promise(function(resolve, reject){
+
+		console.log('In Promise')
 
 		inquirer.prompt([taskPrompt], function(args){
 			resolve(args.task)
