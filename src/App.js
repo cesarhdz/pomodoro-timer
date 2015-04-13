@@ -5,6 +5,7 @@ events = require('events'),
 Config = require('./Config'),
 TaskProvider = require('./TodoTxtProvider'),
 inquirer = require("inquirer"),
+chalk = require('chalk'),
 
 
 MINUTES = 60000,
@@ -130,7 +131,7 @@ App.prototype.resumeOrFinishTask = function(task){
 
 	taskPrompt = {
 	    type: 'expand',
-    	message: 'Resume or finish task ' + task.text,
+    	message: 'Time is over, What\'s nex? \n  '  + chalk.yellow(task.text) + '\n  ',
     	name: key,
     	choices: [
 	      	{
@@ -158,7 +159,10 @@ App.prototype.resumeOrFinishTask = function(task){
 	      				})
 	      		}
 	      	}
-		]
+		],
+
+		// Set help by default to avoid typos
+		default: 3
 	}
 
 	inquirer.prompt([taskPrompt], function(args){
