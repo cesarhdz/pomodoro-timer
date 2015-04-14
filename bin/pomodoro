@@ -4,57 +4,81 @@ var
 pomo = require('../src/index'),
 
 chalk = require('chalk'),
-moment = require('moment')
+moment = require('moment'),
+
+program = require('commander')
 
 
-var app = new pomo.App(),
 // 
 // var app = new pomo.App({task:0.2, shortBreak:.1, notification:0.1}), //dev mode
 
-now = function(){
-  return moment(new Date()).format("HH:mm:ss")
+function bindEvents(app){
+
+  function now(){
+    return moment(new Date()).format("HH:mm:ss")
+  }
+
+  app.on('task.start', function(time, task){
+    console.log(
+      chalk.cyan('===========================================================') + "\n"
+      + '# Stating task ' + chalk.cyan(task) + ' at ' + chalk.cyan(now()) + "\n" +
+      chalk.cyan('===========================================================') + "\n"
+    )
+  })
+
+
+  app.on('task.timeover', function(){
+    console.log(
+      "\n\n" + chalk.gray('-------------------------- BREAK --------------------------') + "\n"
+    )
+  })
+
+
+  app.on('shortBreak.timeover', function(){
+    console.log(
+      chalk.gray("\n\n................ END OF TASK @ " + now() + " ...................\n")
+    )
+  })
+
+
+  new pomo.OSNotifier().connect(app)
+  new pomo.Timer().connect(app)
+  new pomo.Logger().connect(app)
 }
 
 
-app.on('app.start', function(){
-  console.log("\n")
-  console.log(chalk.yellow('                      o       o '))
-  console.log(chalk.yellow('                      |       | '))
-  console.log(chalk.yellow('o-o  o-o o-O-o o-o   -o- \\ / -o-'))
-  console.log(chalk.yellow('|  | | | | | | | |    |   o   | '))
-  console.log(chalk.yellow('O-o  o-o o o o o-o O  o  / \\  o '))
-  console.log(chalk.yellow('|                               '))
-  console.log(chalk.yellow('o                               '))
-  console.log("\n")
-  console.log(chalk.green('* Starting a new Journey at ' + now() ))
-})
+function runTask(number){
+    // Then start app with the app
+    var app = new pomo.App()
+
+    bindEvents(app)
+
+    app.startTask(number)
+}
 
 
-app.on('task.start', function(time, task){
-  console.log(
-              chalk.cyan('===========================================================') + "\n"
-              + '# Stating task ' + chalk.cyan(task) + ' at ' + chalk.cyan(now()) + "\n" +
-              chalk.cyan('===========================================================') + "\n"
-              )
-})
+program.version(pomo.App.version)
+
+/**
+ * By default it starts 
+ */
+program.command('*')
+  .description('Start a new timer for a given task')
+  .option('-d, --dir <di>', 'Which dir is todo.tx located')
+  .action(function(task, options){
+    runTask(task)
+  })
 
 
-app.on('task.timeover', function(){
-  console.log(
-    "\n\n" + chalk.gray('-------------------------- BREAK --------------------------') + "\n"
-  )
-})
+/**
+ * Bootstrap command
+ */
+program.parse(process.argv)
 
 
-app.on('shortBreak.timeover', function(){
-  console.log(
-    chalk.gray("\n\n................ END OF TASK @ " + now() + " ...................\n")
-  )
-})
-
-
-new pomo.OSNotifier().connect(app)
-new pomo.Timer().connect(app)
-new pomo.Logger().connect(app)
-
-app.run()
+/**
+ * Dedault command will prompt the task
+ */
+if(!program.args.length){
+  runTask()
+}

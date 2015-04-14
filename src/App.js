@@ -4,6 +4,8 @@ var
 events = require('events'),
 Config = require('./Config'),
 TaskProvider = require('./TodoTxtProvider'),
+inquirer = require("inquirer"),
+chalk = require('chalk'),
 
 
 MINUTES = 60000,
@@ -35,12 +37,11 @@ defaults = {
 }
 
 
-var App = function App(){
+function App(){
 	// Inherit bus behavior
 	var 
 	bus = new events.EventEmitter(),
 	config = new Config(APP_NAME, defaults)
-
 
 	this.on = bus.on
 	this.emit = bus.emit
@@ -49,55 +50,135 @@ var App = function App(){
 	this.taskProvider = new TaskProvider(this)
 }
 
-App.prototype.version = require('../package').version
+App.version = require('../package').version
 
 
-App.prototype.startTask = function(){
+/**
+ * Start a timer of a given task 
+ * If tasknumber is not given, a dropdown will be prompted to choose one
+ * 
+ * @param  {Integer} taskNumber Task number, same order todo.txt have
+ * @return {void}            
+ */
+App.prototype.startTask = function(taskNumber){
 
-	var 
-	app = this,
+	var self = this,
+
+	// Prompt task or get directly
+	promise =  taskNumber 
+				? this.taskProvider.getTask(taskNumber) 
+				: this.taskProvider.promptTask()
+
+	// Starts a new task
+	promise.then(function(task){
+		self.runTask(task)
+	})
+}
+
+
+App.prototype.runTask = function(task){
+
+	var
+	self = this,
 	time = this.config.task * MINUTES,
 	notification = time - (this.config.notification * MINUTES)
 
-	// Prompt task
-	this.taskProvider.promptTask()
+	this.emit('task.start', time, task)
 
+	// Send notification
+	setTimeout(function(){
+		self.emit('task.timeover.notification', self.config.notification * MINUTES, task)
+	}, notification)
 
-	// Starts a new task
-	.then(function(task){
-		app.emit('task.start', time, task)
-
-		// Send notification
-		setTimeout(function(){
-			app.emit('task.timeover.notification', app.config.notification * MINUTES, task)
-		}, notification)
-
-		// When task is completed, its sent
-		setTimeout(function(){
-			app.emit('task.timeover', task)
-			app.startBreak()
-		}, time)
-	})
-
+	// When task is completed, its sent
+	setTimeout(function(){
+		self.emit('task.timeover', task)
+		self.startBreak(task)
+	}, time)
 }
 
-App.prototype.startBreak = function(){
+App.prototype.startBreak = function(task){
 	//@TODO Determine if break is short or long
 	var
-	app = this,
+	self = this,
 	time = this.config.shortBreak * MINUTES
 
-	app.emit('shortBreak.start', time)
+	this.emit('shortBreak.start', time, task)
 
 	setTimeout(function(){
-		app.emit('shortBreak.timeover')
-		app.startTask()
+		self.emit('shortBreak.timeover')
+		self.resumeOrFinishTask(task)
 	}, time)
 
 }
 
 
+/**
+ * Action called after break time is finished
+ * Shows a prompt to the user to decide what to next:
+ * 	- Resume task
+ * 	- Stop timer
+ * 	- Stop timer and mark task as done
+ * 	
+ * @param  {Task} task Task currently working
+ * @return {void}      
+ */
+App.prototype.resumeOrFinishTask = function(task){
 
+	var	
+	key = 'taskResume',
+	self = this,
+
+	taskPrompt = {
+	    type: 'expand',
+    	message: 'Time is over, What\'s nex? \n  '  + chalk.yellow(task.text) + '\n  ',
+    	name: key,
+    	choices: [
+	      	{
+		        key: 'r',
+		        name: 'Resume task',
+		        value: function(task){ 
+		        	self.runTask(task)
+		        }
+	      	},
+	      	{
+	      		key: 's',
+	      		name: 'Stop Timer',
+	      		value: process.exit
+	      	},
+	      	{
+	      		key: 'x',
+	      		name: 'Stop Timer and mark task as done',
+	      		value: function(task){
+	      			self.taskProvider.markAsDone(task)
+	      				.then(function(){
+	      					process.exit()
+	      				}, function(error){
+	      					console.log(error)
+	      					process.exit()
+	      				})
+	      		}
+	      	}
+		],
+
+		// Set help by default to avoid typos
+		default: 3
+	}
+
+	inquirer.prompt([taskPrompt], function(args){
+		var fn = args[key]
+
+		fn(task)
+	})
+}
+
+
+/**
+ * Deprecated
+ * It makes app complex,, directly selecting the task is faster
+ * and more efficient
+ * @return {void} 
+ */
 App.prototype.run = function(){
 	
 	var app = this
