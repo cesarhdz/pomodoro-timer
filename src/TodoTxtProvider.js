@@ -131,9 +131,6 @@ TodoTxtProvider.prototype.promptTask = function(){
 	}
 
 	return new Promise(function(resolve, reject){
-
-		console.log('In Promise')
-
 		inquirer.prompt([taskPrompt], function(args){
 			resolve(args.task)
 		})
