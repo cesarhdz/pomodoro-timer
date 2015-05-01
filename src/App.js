@@ -12,6 +12,9 @@ MINUTES = 60000,
 
 APP_NAME = 'pomotxt',
 
+// Variable to use same dir if is given in TODO.txt
+TODO_DIR_VAR = 'TODO_DIR',
+
 defaults = {
 	
 	// Minutes a task will last (pomodoro)
@@ -32,8 +35,8 @@ defaults = {
 	// Show a reminder {n} minutes if no task is selected
 	reminder: 2,
 
-	// Current path
-	path: './'
+	// TODO_DIR path or current path as default
+	path:  process.env[TODO_DIR_VAR] || './'
 }
 
 
