@@ -130,10 +130,7 @@ TodoTxtProvider.prototype.promptTask = function(){
 		throw new Error('The file ' + chalk.cyan(this.file) + ' doesn\'t contains any task')
 	}
 
-	return new Promise(function(resolve){
-
-		console.log('In Promise')
-
+	return new Promise(function(resolve, reject){
 		inquirer.prompt([taskPrompt], function(args){
 			resolve(args.task)
 		})
