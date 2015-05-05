@@ -2,6 +2,7 @@
 
 var
 moment = require('moment'),
+path = require('path'),
 
 DATE_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss',
 FILE = 'pomo.txt'
@@ -28,7 +29,7 @@ Logger.prototype.timestamp = function(task){
 }
 
 Logger.prototype.getFilePath = function(){
-	return this.path + FILE
+	return path.join(this.path, FILE)
 }
 
 Logger.prototype.write = function(task){
