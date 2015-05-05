@@ -44,6 +44,8 @@
   "devDependencies": {
     "cases": "^0.1.1",
     "chai": "~2.0.0",
+    "gulp": "^3.8.11",
+    "gulp-mocha": "^2.0.1",
     "mocha": "~2.1.0",
     "mock-fs": "~2.5.0"
   },
