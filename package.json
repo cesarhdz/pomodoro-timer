@@ -39,6 +39,7 @@
     "node-notifier": "^4.1.0",
     "promise": "~6.1.0",
     "rc": "~0.6.0",
+    "text-table": "^0.2.0",
     "todo.txt": "0.0.2"
   },
   "devDependencies": {

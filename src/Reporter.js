@@ -31,7 +31,6 @@ Reporter.prototype.byProject = function(file){
 
 	var fs = this.fs
 
-
 	return new Promise(function(resolve, reject){
 		fs.readFile(file, 'utf8', function(err, data){
 

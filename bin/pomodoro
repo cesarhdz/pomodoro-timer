@@ -6,7 +6,11 @@ pomo = require('../src/index'),
 chalk = require('chalk'),
 moment = require('moment'),
 
-program = require('commander')
+program = require('commander'),
+
+table = require('text-table'),
+
+path = require('path')
 
 
 // 
@@ -57,6 +61,34 @@ function runTask(number){
 }
 
 
+function report(task, options){
+
+  var 
+  app = new pomo.App(),
+  file = path.join(app.config.path, 'pomo.txt')
+
+  new pomo.Reporter()
+    .byProject(file)
+    .then(function(report){
+
+      var 
+      headers = [[chalk.gray('project')]],
+      data = Object.keys(report).map(function(k){
+        return [k, report[k]];
+      }),
+
+      t = headers.concat(data)
+
+      // Draw data
+      console.log('')
+      console.log(table(t))
+      console.log('')
+
+    })
+
+}
+
+
 program.version(pomo.App.version)
 
 /**
@@ -68,6 +100,12 @@ program.command('*')
   .action(function(task, options){
     runTask(task)
   })
+
+
+
+program.command('report')
+  .description('Display a report by command')
+  .action(report)
 
 
 /**
