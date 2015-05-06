@@ -23,21 +23,23 @@ describe('Reporter', function(){
 	beforeEach(function(){
 		result = null
 
-		service = new pomo.Reporter('todo/')
+		service = new pomo.Reporter('pomo.txt')
 
 		service.fs = fsMock.fs({
 			'pomo.txt': [
-				'2015-04-27T17:37:14 Task1 +projA',
-				'2015-04-27T18:15:02 Task1 +projA',
-				'2015-04-27T18:47:08 Task1 +projA',
-				'2015-04-27T19:21:35 Task1 +projA',
-				'2015-04-27T19:59:54 Task1 +projA',
-				'2015-04-28T12:59:47 Task1 +projB',
-				'2015-04-28T17:33:26 Task1 +projB',
-				'2015-04-28T18:47:27 Task1 +projB',
-				'2015-04-28T19:21:43 Task1 +projC +projA',
-				'2015-04-28T19:54:34 Task1 +projC +projA',
-				'2015-04-29T11:23:43 Task1 +projC +projA',
+				'2015-04-24T17:37:14 Task1 +projA',
+				'2015-04-24T18:15:02 Task1 +projA',
+				'2015-04-24T18:47:08 Task1 +projA',
+
+				'2015-04-25T19:21:35 Task1 +projA',
+				'2015-04-25T19:59:54 Task1 +projA',
+				'2015-04-25T12:59:47 Task1 +projB',
+				'2015-04-25T17:33:26 Task1 +projB',
+				'2015-04-26T18:47:27 Task1 +projB',
+				'2015-04-26T19:21:43 Task1 +projC +projA',
+
+				'2015-04-27T19:54:34 Task1 +projC +projA',
+				'2015-04-28T11:23:43 Task1 +projC +projA',
 				'2015-04-29T11:59:48 Task1 +projD',
 				'2015-04-29T13:30:25 Task1 +projD'
 			].join('\n')
@@ -49,7 +51,7 @@ describe('Reporter', function(){
 		it('Should make a report groupped by projects', function(){
 
 			//when
-			result = service.byProject('pomo.txt')
+			result = service.byProject()
 
 			// then
 			return result.then(function(data){
@@ -58,6 +60,34 @@ describe('Reporter', function(){
 				data.projB.should.be.equal(3)
 				data.projD.should.be.equal(2)
 			})
+		})
+
+
+		it('Should filter by start date', function(){
+
+			result = service.byProject('2015-04-25')
+
+			//then
+			return result.then(function(data){
+
+
+				data.projA.should.be.equal(5)
+				data.projB.should.be.equal(3)
+			})
+
+		})
+
+
+		it('Should filter by end date', function(){
+
+			result = service.byProject(null, '2015-04-26')
+
+			//then
+			return result.then(function(data){
+				data.projA.should.be.equal(6)
+				data.projB.should.be.equal(3)
+			})
+
 		})
 	})
 

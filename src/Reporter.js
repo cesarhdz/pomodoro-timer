@@ -3,12 +3,14 @@
 var
 Promise = require('promise'),
 path = require('path'),
-todo = require('todo.txt')
+todo = require('todo.txt'),
+moment = require('moment')
 
 
 
 
-function Reporter(){
+function Reporter(file){
+	this.file = file
 }
 
 function groupByProject(tasks){
@@ -27,26 +29,88 @@ function groupByProject(tasks){
 
 }
 
-Reporter.prototype.byProject = function(file){
+function parse(data, start, end){
 
-	var fs = this.fs
+	var 
+	lines = data.split('\n'),
+	filtered = lines.filter(function(line){
+
+		var date = getDate(line)
+
+		if(start && moment(date).isBefore(start, 'day')){
+			return false;
+		}
+
+		if(end && moment(date).isAfter(end, 'day')){
+			return false;
+		}
+
+		return true;
+	})
+
+
+	return filtered.map(function(t){
+		return new todo.TodoItem(t)
+	})
+
+}
+
+function getDate(l){
+
+	var t = l.slice(0, 19)
+
+	return moment(t).toDate()
+}
+
+
+/**
+ * Report by project with the given range of dates
+ * @param  {Date} [start] 		
+ * @param  {Date} [end]   
+ * @return {Promise}       
+ * @resolve {Object} Report
+ */
+Reporter.prototype.byProject = function(start, end){
+
+	function parseDate(date){
+		if(date){
+			var m = moment(date)
+			return m.isValid() ? m.toDate() : null
+		}
+	}
+
+	start = parseDate(start)
+	end = parseDate(end)
+
+
+	var self = this;
 
 	return new Promise(function(resolve, reject){
-		fs.readFile(file, 'utf8', function(err, data){
+		self.fs.readFile(self.file, 'utf8', function(err, data){
 
 			if(err){
+				
 				reject(err)
-				return
+
+			}else{
+
+				var tasks = parse(data, start, end)
+
+				resolve(groupByProject(tasks));
 			}
-
-			var tasks = data.split('\n').map(function(t){
-				return new todo.TodoItem(t);
-			});
-
-			resolve(groupByProject(tasks));
 		})
 	});
 }
+
+
+Reporter.prototype.prepareTasks = function(data, start, end){
+
+	var tasks = data.split('\n')
+
+
+
+}
+
 
 Reporter.prototype.fs = require('fs')
 
