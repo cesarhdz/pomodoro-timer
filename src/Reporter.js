@@ -2,7 +2,8 @@
 
 var
 Promise = require('promise'),
-path = require('path')
+path = require('path'),
+todo = require('todo.txt')
 
 
 
@@ -10,16 +11,23 @@ path = require('path')
 function Reporter(){
 }
 
-function buildReport(data){
+function groupByProject(tasks){
 
-	var lines = data.split('\n');
+	return tasks.reduce(function(acc, task){
 
-	return {
-		totalCount: lines.length
-	}
+		task.projects.forEach(function(p){
+			var counter = acc[p] || 0;
+
+			acc[p] = counter + 1;
+		})
+
+		return acc;
+
+	}, {});
+
 }
 
-Reporter.prototype.report = function(file){
+Reporter.prototype.byProject = function(file){
 
 	var fs = this.fs
 
@@ -32,8 +40,11 @@ Reporter.prototype.report = function(file){
 				return
 			}
 
+			var tasks = data.split('\n').map(function(t){
+				return new todo.TodoItem(t);
+			});
 
-			resolve(buildReport(data));
+			resolve(groupByProject(tasks));
 		})
 	});
 }

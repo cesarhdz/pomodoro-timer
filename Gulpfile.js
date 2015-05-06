@@ -6,7 +6,7 @@ mocha = require('gulp-mocha')
 gulp.task('test', function(){
 
 	var test = mocha({
-		reporter: 'spec',
+		reporter: 'list',
 		ui: 'bdd'
 	});
 
