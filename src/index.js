@@ -6,6 +6,7 @@ module.exports = {
 	Timer: require('../src/Timer'),
 	Logger: require('../src/Logger'),
 	TdoTxtProvider: require('../src/TodoTxtProvider'),
-	TodoTxtList: require('../src/TodoTxtList')
+	TodoTxtList: require('../src/TodoTxtList'),
+	Reporter: require('../src/Reporter')
 }
 
