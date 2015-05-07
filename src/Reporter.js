@@ -92,6 +92,11 @@ function preFilter(query){
 
 		var date = getDate(line)
 
+		if(query.q && line.indexOf(query.q.trim()) === -1 ){
+			return false;
+		}
+
+
 		if(start && moment(date).isBefore(start, 'day')){
 			return false;
 		}

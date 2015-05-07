@@ -33,15 +33,15 @@ describe('Reporter', function(){
 
 				'2015-04-25T19:21:35 Task1 +projA',
 				'2015-04-25T19:59:54 Task1 +projA',
-				'2015-04-25T12:59:47 Task1 +projB',
-				'2015-04-25T17:33:26 Task1 +projB',
-				'2015-04-26T18:47:27 Task1 +projB',
-				'2015-04-26T19:21:43 Task1 +projC +projA',
+				'2015-04-25T12:59:47 Task2 +projB',
+				'2015-04-25T17:33:26 Task2 +projB',
+				'2015-04-26T18:47:27 Task2 +projB',
+				'2015-04-26T19:21:43 Task2 +projC +projA',
 
-				'2015-04-27T19:54:34 Task1 +projC +projA',
-				'2015-04-28T11:23:43 Task1 +projC +projA',
-				'2015-04-29T11:59:48 Task1 +projD',
-				'2015-04-29T13:30:25 Task1 +projD'
+				'2015-04-27T19:54:34 Task3 +projC +projA',
+				'2015-04-28T11:23:43 Task3 +projC +projA',
+				'2015-04-29T11:59:48 Task3 +projD',
+				'2015-04-29T13:30:25 Task3 +projD'
 			].join('\n')
 		})
 	})
@@ -121,6 +121,19 @@ describe('Reporter', function(){
 				report.total.should.equal(13)
 
 				report.data['Task1 +projA'].should.equal(5)
+
+			})
+
+		})
+
+
+		it('Should query simple string', function(){
+
+			result = service.report({q: 'Task3'})
+
+			return result.then(function(report){
+
+				report.total.should.equal(4)
 
 			})
 
