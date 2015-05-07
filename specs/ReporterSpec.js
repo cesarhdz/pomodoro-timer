@@ -109,6 +109,22 @@ describe('Reporter', function(){
 			})
 
 		})
+
+
+		it('Should group by tasks', function(){
+
+			result = service.report({groupBy: 'task'})
+
+
+			return result.then(function(report){
+				
+				report.total.should.equal(13)
+
+				report.data['Task1 +projA'].should.equal(5)
+
+			})
+
+		})
 	})
 
 

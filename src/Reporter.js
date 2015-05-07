@@ -36,11 +36,20 @@ function groupByProject(acc, task){
 	return acc;
 }
 
+function getTaskText(text){
+	// Remove starting date
+	var out = text.slice(19, text.length).trim()
+
+	//@TODO Remove projects and context
+
+	return out
+}
+
 
 function groupByTask(acc, task){
 	var 
-	key = task.text,
-	counter = acc[task] || 0;
+	key = getTaskText(task.text),
+	counter = acc[key] || 0;
 
 	acc[key] = counter + 1
 
@@ -115,7 +124,9 @@ Reporter.prototype.report = function(query){
 
 	query = query || {}
 
-	var self = this;
+	var 
+	self = this,
+	groupFn = this.getGroupFunction(query.groupBy)
 
 	return new Promise(function(resolve, reject){
 		self.fs.readFile(self.file, 'utf8', function(err, data){
@@ -125,9 +136,11 @@ Reporter.prototype.report = function(query){
 			}else{
 
 				var 
+				// Filter
 				tasks = parse(data, preFilter(query)),
 
-				data = tasks.reduce(groupByProject, {})
+				// Group and Count data
+				data = tasks.reduce(groupFn, {})
 
 				// Total is not the sum because one task can belong to one or more projects
 				resolve(new Report(data, tasks.length));
@@ -135,6 +148,23 @@ Reporter.prototype.report = function(query){
 		})
 	});
 }
+
+
+/**
+ * Return group function with the given key
+ * By default if key doesnt esixts, the project function is returned
+ * @param  {String} key Function key
+ * @return {Function}     [description]
+ */
+Reporter.prototype.getGroupFunction = function(key){
+	var groupFunctions = {
+		project: groupByProject,
+		task: groupByTask
+	}
+
+	return groupFunctions[key] || groupFunctions.project
+}
+
 
 
 Reporter.prototype.fs = require('fs')
