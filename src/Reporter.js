@@ -26,37 +26,56 @@ Report.prototype.toTable = function(){
     })
 }
 
-function groupByProject(tasks){
+function groupByProject(acc, task){
+	task.projects.forEach(function(p){
+		var counter = acc[p] || 0;
 
-	var data = tasks.reduce(function(acc, task){
+		acc[p] = counter + 1;
+	})
 
-		task.projects.forEach(function(p){
-			var counter = acc[p] || 0;
-
-			acc[p] = counter + 1;
-		})
-
-		return acc;
-
-	}, {});
-
-
-	// Total is not the sum because one task can belong to one or more projects
-	return new Report(data, tasks.length)
+	return acc;
 }
+
+
+function groupByTask(acc, task){
+	var 
+	key = task.text,
+	counter = acc[task] || 0;
+
+	acc[key] = counter + 1
+
+	return acc;
+}
+
 
 function splitTasks(lines){
 	return 	lines.split('\n');
 }
 
 
-function taskFilter(start, end){
+/**
+ * Return a funtion that will filter raw lines
+ * @param  {Object} query 
+ * @return {Function}       filter
+ */
+function preFilter(query){
+
+	function parseDate(date){
+		if(date){
+			var m = moment(date)
+			return m.isValid() ? m.toDate() : null
+		}
+	}
 
 	function getDate(l){
 		var t = l.slice(0, 19)
 
 		return moment(t).toDate()
 	}
+
+	var
+	start = parseDate(query.from),
+	end = parseDate(query.to)
 
 	return function(line){
 		// Remove empty lines
@@ -76,11 +95,11 @@ function taskFilter(start, end){
 	}
 }
 
-function parse(data, start, end){
+function parse(data, filter){
 	var lines = splitTasks(data)
 
 	return lines
-			.filter(taskFilter(start, end))
+			.filter(filter)
 			.map(function(t){ return new todo.TodoItem(t)})
 }
 
@@ -90,20 +109,11 @@ function parse(data, start, end){
  * @param  {Date} [start] 		
  * @param  {Date} [end]   
  * @return {Promise}       
- * @resolve {Object} Report
+ * @resolve {Report} Report Object with data and totals
  */
-Reporter.prototype.byProject = function(start, end){
+Reporter.prototype.report = function(query){
 
-	function parseDate(date){
-		if(date){
-			var m = moment(date)
-			return m.isValid() ? m.toDate() : null
-		}
-	}
-
-	start = parseDate(start)
-	end = parseDate(end)
-
+	query = query || {}
 
 	var self = this;
 
@@ -113,9 +123,14 @@ Reporter.prototype.byProject = function(start, end){
 			if(err){
 				reject(err)
 			}else{
-				var tasks = parse(data, start, end)
 
-				resolve(groupByProject(tasks));
+				var 
+				tasks = parse(data, preFilter(query)),
+
+				data = tasks.reduce(groupByProject, {})
+
+				// Total is not the sum because one task can belong to one or more projects
+				resolve(new Report(data, tasks.length));
 			}
 		})
 	});

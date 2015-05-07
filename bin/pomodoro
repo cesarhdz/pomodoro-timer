@@ -98,7 +98,7 @@ function report(start, options){
   file = path.join(app.config.path, 'pomo.txt')
 
   new pomo.Reporter(file)
-    .byProject(opts.from, opts.to)
+    .report(opts.from, opts.to)
     .then(function(report){
 
       // Draw header

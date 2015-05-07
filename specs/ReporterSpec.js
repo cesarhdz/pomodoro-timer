@@ -51,7 +51,7 @@ describe('Reporter', function(){
 		it('Should make a report groupped by projects', function(){
 
 			//when
-			result = service.byProject()
+			result = service.report()
 
 			// then
 			return result.then(function(report){
@@ -68,7 +68,7 @@ describe('Reporter', function(){
 
 		it('Should filter by start date', function(){
 
-			result = service.byProject('2015-04-25')
+			result = service.report({from : '2015-04-25'})
 
 			//then
 			return result.then(function(report){
@@ -84,7 +84,7 @@ describe('Reporter', function(){
 
 		it('Should filter by end date', function(){
 
-			result = service.byProject(null, '2015-04-26')
+			result = service.report({to:'2015-04-26'})
 
 			//then
 			return result.then(function(report){
@@ -100,7 +100,7 @@ describe('Reporter', function(){
 
 		it('Should return a table friendly result', function(){
 
-			result = service.byProject('2015-04-27')
+			result = service.report({from: '2015-04-27'})
 
 			return result.then(function(report){
 				report.toTable()[0][0].should.equal('projC')
