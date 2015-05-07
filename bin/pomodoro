@@ -7,6 +7,7 @@ chalk = require('chalk'),
 moment = require('moment'),
 
 program = require('commander'),
+argv = require('minimist')(process.argv.slice(2)),
 
 table = require('text-table'),
 
@@ -60,35 +61,58 @@ function runTask(number){
     app.startTask(number)
 }
 
+//@TEST and move to its own file
+function getOpts(config, argv){
 
-function report(task, options){
+  // Findds a value from the given options
+  // @TODO add coercion
+  function getVal(key, c){
+    if(argv[key]){
+      return argv[key];
+    }
+
+
+    if(argv[c.alias]){
+      return argv[c.alias]
+    }
+  }
+
+  return Object.keys(config).reduce(function(opts, k){
+    opts[k] = getVal(k, config[k])
+
+    return opts
+  }, {})
+
+}
+
+
+function report(start, options){
+
+  var opts = getOpts({
+    from: {alias:'f'},
+    to: {alias:'t'}
+  }, argv)
 
   var 
   app = new pomo.App(),
   file = path.join(app.config.path, 'pomo.txt')
 
-  new pomo.Reporter()
-    .byProject(file)
+  new pomo.Reporter(file)
+    .byProject(opts.from, opts.to)
     .then(function(report){
 
-      var 
-      headers = [[chalk.gray('project')]],
-      data = Object.keys(report).map(function(k){
-        return [k, report[k]];
-      }),
+      // Draw header
+      console.log(chalk.gray('\nReport by Project\n'))
 
-      t = headers.concat(data)
+      // Draw Data
+      console.log(table(report.toTable()))
 
-      // Draw data
-      console.log('')
-      console.log(table(t))
-      console.log('')
-
+      // Draw Summary
+      console.log(chalk.green('\nTotal: ' + report.total + '\n'))
     })
-
 }
 
-
+// @TODO Replace commander
 program.version(pomo.App.version)
 
 /**
@@ -96,15 +120,17 @@ program.version(pomo.App.version)
  */
 program.command('*')
   .description('Start a new timer for a given task')
-  .option('-d, --dir <di>', 'Which dir is todo.tx located')
   .action(function(task, options){
     runTask(task)
   })
 
 
 
-program.command('report')
+program
+  .command('report [query]')
   .description('Display a report by command')
+  .option('-f', '--from <date>')
+  .option('-t', '--to <date>')
   .action(report)
 
 
@@ -113,10 +139,9 @@ program.command('report')
  */
 program.parse(process.argv)
 
-
 /**
  * Dedault command will prompt the task
  */
-if(!program.args.length){
+if(!argv._.length){
   runTask()
 }
