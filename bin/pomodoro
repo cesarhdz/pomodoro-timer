@@ -105,14 +105,15 @@ function report(start, options){
     .report(opts)
     .then(function(report){
 
-      // Draw header
-      console.log(chalk.gray('\nReport by Project\n'))
 
       // Draw Data
-      console.log(table(report.toTable()))
+      console.log('\n' + table(report.toTable()))
 
       // Draw Summary
-      console.log(chalk.green('\nTotal: ' + report.total + '\n'))
+      console.log(chalk.green('\n* Total: ' + report.total))
+
+      // Draw header
+      console.log(chalk.gray('\nReport grouped by ' + (opts.groupBy || 'project') + '\n\n'))
     })
 }
 
