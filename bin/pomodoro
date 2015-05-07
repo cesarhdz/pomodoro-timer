@@ -90,15 +90,19 @@ function report(start, options){
 
   var opts = getOpts({
     from: {alias:'f'},
-    to: {alias:'t'}
+    to: {alias:'t'},
+    groupBy: {alias:'g'}
   }, argv)
+
+  // add query
+  opts.q = (argv._.length > 1) ? argv._[1] : undefined
 
   var 
   app = new pomo.App(),
   file = path.join(app.config.path, 'pomo.txt')
 
   new pomo.Reporter(file)
-    .report(opts.from, opts.to)
+    .report(opts)
     .then(function(report){
 
       // Draw header
@@ -131,6 +135,7 @@ program
   .description('Display a report by command')
   .option('-f', '--from <date>')
   .option('-t', '--to <date>')
+  .option('-g', '--group-by <String>', 'Project or task')
   .action(report)
 
 
