@@ -13,9 +13,17 @@ function Reporter(file){
 	this.file = file
 }
 
+
+function Report(data, total){
+	this.total = total
+	this.data = data
+}
+
+
+
 function groupByProject(tasks){
 
-	return tasks.reduce(function(acc, task){
+	var data = tasks.reduce(function(acc, task){
 
 		task.projects.forEach(function(p){
 			var counter = acc[p] || 0;
@@ -27,6 +35,9 @@ function groupByProject(tasks){
 
 	}, {});
 
+
+	// Total is not the sum because one task can belong to one or more projects
+	return new Report(data, tasks.length)
 }
 
 function parse(data, start, end){

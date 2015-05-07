@@ -54,11 +54,14 @@ describe('Reporter', function(){
 			result = service.byProject()
 
 			// then
-			return result.then(function(data){
-				data.projA.should.be.equal(8)
-				data.projB.should.be.equal(3)
-				data.projB.should.be.equal(3)
-				data.projD.should.be.equal(2)
+			return result.then(function(report){
+
+				report.total.should.equal(13)
+
+				report.data.projA.should.equal(8)
+				report.data.projB.should.equal(3)
+				report.data.projB.should.equal(3)
+				report.data.projD.should.equal(2)
 			})
 		})
 
@@ -68,11 +71,12 @@ describe('Reporter', function(){
 			result = service.byProject('2015-04-25')
 
 			//then
-			return result.then(function(data){
+			return result.then(function(report){
 
+				report.total.should.equal(10)
 
-				data.projA.should.be.equal(5)
-				data.projB.should.be.equal(3)
+				report.data.projA.should.equal(5)
+				report.data.projB.should.equal(3)
 			})
 
 		})
@@ -83,9 +87,12 @@ describe('Reporter', function(){
 			result = service.byProject(null, '2015-04-26')
 
 			//then
-			return result.then(function(data){
-				data.projA.should.be.equal(6)
-				data.projB.should.be.equal(3)
+			return result.then(function(report){
+
+				report.total.should.equal(9)
+
+				report.data.projA.should.equal(6)
+				report.data.projB.should.equal(3)
 			})
 
 		})
