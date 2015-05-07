@@ -96,6 +96,19 @@ describe('Reporter', function(){
 			})
 
 		})
+
+
+		it('Should return a table friendly result', function(){
+
+			result = service.byProject('2015-04-27')
+
+			return result.then(function(report){
+				report.toTable()[0][0].should.equal('projC')
+				report.toTable()[0][1].should.equal(2)
+				report.toTable().length.should.equal(3)
+			})
+
+		})
 	})
 
 

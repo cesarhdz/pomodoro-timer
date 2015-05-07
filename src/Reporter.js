@@ -7,8 +7,6 @@ todo = require('todo.txt'),
 moment = require('moment')
 
 
-
-
 function Reporter(file){
 	this.file = file
 }
@@ -19,7 +17,14 @@ function Report(data, total){
 	this.data = data
 }
 
+Report.prototype.toTable = function(){
 
+	var data = this.data
+
+	return Object.keys(data).map(function(k){
+        return [k, data[k]];
+    })
+}
 
 function groupByProject(tasks){
 
@@ -40,11 +45,22 @@ function groupByProject(tasks){
 	return new Report(data, tasks.length)
 }
 
-function parse(data, start, end){
+function splitTasks(lines){
+	return 	lines.split('\n');
+}
 
-	var 
-	lines = data.split('\n'),
-	filtered = lines.filter(function(line){
+
+function taskFilter(start, end){
+
+	function getDate(l){
+		var t = l.slice(0, 19)
+
+		return moment(t).toDate()
+	}
+
+	return function(line){
+		// Remove empty lines
+		if(line.trim() === '') return
 
 		var date = getDate(line)
 
@@ -57,20 +73,15 @@ function parse(data, start, end){
 		}
 
 		return true;
-	})
-
-
-	return filtered.map(function(t){
-		return new todo.TodoItem(t)
-	})
-
+	}
 }
 
-function getDate(l){
+function parse(data, start, end){
+	var lines = splitTasks(data)
 
-	var t = l.slice(0, 19)
-
-	return moment(t).toDate()
+	return lines
+			.filter(taskFilter(start, end))
+			.map(function(t){ return new todo.TodoItem(t)})
 }
 
 
@@ -100,26 +111,14 @@ Reporter.prototype.byProject = function(start, end){
 		self.fs.readFile(self.file, 'utf8', function(err, data){
 
 			if(err){
-				
 				reject(err)
-
 			}else{
-
 				var tasks = parse(data, start, end)
 
 				resolve(groupByProject(tasks));
 			}
 		})
 	});
-}
-
-
-Reporter.prototype.prepareTasks = function(data, start, end){
-
-	var tasks = data.split('\n')
-
-
-
 }
 
 
